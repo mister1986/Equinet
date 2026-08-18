@@ -1,0 +1,19 @@
+# Netlify configuration for the EQUINET Ad Scenarios app.
+# Static files are served from the repo root; /api/* routes to the
+# serverless functions in netlify/functions, which hold the GitHub
+# token as a secret environment variable (set in the Netlify dashboard,
+# never in this file, never in the browser).
+
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+[[redirects]]
+  from = "/api/data"
+  to = "/.netlify/functions/data"
+  status = 200
+
+[[redirects]]
+  from = "/api/save"
+  to = "/.netlify/functions/save"
+  status = 200
