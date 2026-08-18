@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EQUINET Ad Scenarios</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", Arial, Helvetica, sans-serif; background: #f4f5f7; color: #111; }
+
+  .app-header { background: #000; padding: 22px 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .app-header .brand { font-size: 24px; font-weight: 800; color: #fff; }
+  .app-header .brand .g { color: #1FA37A; }
+  .app-header .sub { color: #9aa7bb; font-size: 13px; margin-top: 4px; }
+  .app-header .count { color: #fff; font-size: 13px; background: #0057B8; padding: 6px 14px; border-radius: 20px; font-weight: 600; }
+  .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .editor-select { display: flex; align-items: center; gap: 8px; background: #111; padding: 8px 14px; border-radius: 20px; }
+  .editor-select label { color: #9aa7bb; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .editor-select select { background: #222; color: #fff; border: 1px solid #444; border-radius: 12px; padding: 5px 10px; font-size: 13px; font-weight: 600; }
+
+  .db-status { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 6px 14px; border-radius: 20px; font-weight: 700; }
+  .db-status.connected { background: #1FA37A; color: #fff; }
+  .db-status.disconnected { background: #a33; color: #fff; }
+  .db-status .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  .filter-row { padding: 14px 32px; background: #fff; border-bottom: 1px solid #e5e5e5; }
+  .filter-row .label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .filters { display: flex; gap: 10px; flex-wrap: wrap; }
+  .filter-btn { border: 1px solid #ddd; background: #fff; padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; color: #444; transition: all .15s; }
+  .filter-btn:hover { border-color: #0b1f3a; }
+  .filter-btn.active { background: #0b1f3a; color: #fff; border-color: #0b1f3a; }
+  .filter-btn.ceo-active { background: #1FA37A; border-color: #1FA37A; }
+  .filter-btn.raw-active { background: #888; border-color: #888; }
+  .filter-btn.mk-active { background: #c0392b; border-color: #c0392b; }
+  .filter-btn.faezeh-active { background: #e07b1a; border-color: #e07b1a; }
+  .filter-btn.manager-active { background: #0057B8; border-color: #0057B8; }
+
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 28px 32px; }
+  .card { background: #fff; border-radius: 14px; overflow: hidden; border: 1px solid #e8e8e8; cursor: pointer; transition: transform .15s, box-shadow .15s; display: flex; flex-direction: column; position: relative; }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+  .card .thumb { height: 150px; position: relative; overflow: hidden; background: #ddd; }
+  .card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card .badge { position: absolute; top: 10px; left: 10px; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; color: #fff; letter-spacing: .5px; }
+  .badge.tof { background: #0057B8; }
+  .badge.mof { background: #1FA37A; }
+  .badge.dual { background: #7d3fae; }
+  .card .approval-badge { position: absolute; top: 10px; right: 10px; font-size: 9px; font-weight: 800; padding: 4px 9px; border-radius: 20px; color: #fff; letter-spacing: .5px; text-transform: uppercase; }
+  .approval-badge.approved { background: #1FA37A; }
+  .approval-badge.raw { background: #888; }
+  .card .body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .card .cat { font-size: 11px; font-weight: 700; color: #1FA37A; text-transform: uppercase; letter-spacing: .5px; }
+  .card .hook { font-size: 15px; font-weight: 700; line-height: 1.35; color: #111; }
+  .card .cta-preview { margin-top: auto; font-size: 12px; color: #777; padding-top: 8px; border-top: 1px solid #f0f0f0; }
+  .card .approver-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .approver-tag { font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 10px; color: #fff; }
+  .approver-tag.mk { background: #c0392b; }
+  .approver-tag.faezeh { background: #e07b1a; }
+  .approver-tag.manager { background: #0057B8; }
+  .approver-tag.pending { background: #ddd; color: #888; }
+
+  .overlay-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; overflow-y: auto; padding: 40px 20px; }
+  .overlay-bg.open { display: block; }
+  .detail-doc { width: 1150px; max-width: 100%; margin: 0 auto; background: #fff; border-radius: 10px; overflow: hidden; position: relative; }
+  .close-btn { position: absolute; top: 14px; right: 18px; z-index: 5; background: rgba(255,255,255,0.15); color: #fff; border: none; width: 34px; height: 34px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+  .close-btn:hover { background: rgba(255,255,255,0.3); }
+
+  .title-bar { background: #000; padding: 20px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .title-bar .line1 { font-size: 24px; font-weight: 800; color: #fff; }
+  .title-bar .line1 .brand { color: #1FA37A; }
+  .title-bar .line2 { margin-top: 6px; font-size: 13px; color: #d0d0d0; letter-spacing: 0.5px; }
+
+  .approval-bar { background: #16233c; padding: 12px 28px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .approval-bar .lbl { color: #9aa7bb; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .approve-btn { border: 2px solid #555; background: transparent; color: #ccc; padding: 6px 14px; border-radius: 18px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; }
+  .approve-btn.mk.on { background: #c0392b; border-color: #c0392b; color: #fff; }
+  .approve-btn.faezeh.on { background: #e07b1a; border-color: #e07b1a; color: #fff; }
+  .approve-btn.manager.on { background: #0057B8; border-color: #0057B8; color: #fff; }
+  .edit-hint { color: #9aa7bb; font-size: 11px; margin-left: auto; font-style: italic; max-width: 280px; }
+  .save-indicator { font-size: 11px; color: #1FA37A; font-weight: 700; opacity: 0; transition: opacity .3s; }
+  .save-indicator.show { opacity: 1; }
+  .save-indicator.error { color: #e74c3c; }
+
+  .col-header { display: grid; grid-template-columns: 110px 300px 1fr 1fr; background: #0b1f3a; }
+  .col-header div { padding: 10px 16px; color: #fff; font-weight: 700; font-size: 12px; letter-spacing: 1px; }
+
+  .row { display: grid; grid-template-columns: 110px 300px 1fr 1fr; border-bottom: 1px solid #ddd; }
+  .row:nth-child(odd) { background: #fafafa; }
+  .c-time { padding: 14px; }
+  .c-time .t { color: #1FA37A; font-weight: 800; font-size: 14px; }
+  .c-time .s { font-weight: 800; font-size: 12px; color: #222; margin-top: 2px; }
+
+  .c-visual { position: relative; height: 170px; overflow: hidden; background: #ccc; }
+  .c-visual img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ov { position: absolute; left: 0; right: 0; bottom: 0; max-height: 100px; padding: 10px 14px; background: linear-gradient(transparent, rgba(0,0,0,.8)); overflow: hidden; }
+  .ov .txt { color: #fff; font-weight: 800; font-size: 15px; line-height: 1.2; word-break: break-word; overflow-wrap: break-word; }
+  .ov .txt.green { color: #1FA37A; }
+
+  .editable { padding: 14px; font-weight: 800; font-size: 13px; color: #111; line-height: 1.35; outline: none; cursor: text; border-radius: 4px; transition: background .15s; word-break: break-word; }
+  .editable:hover { background: #fffbe6; }
+  .editable:focus { background: #fff9db; box-shadow: inset 0 0 0 2px #f0d060; }
+  .c-vo.editable { font-weight: 400; font-size: 13px; color: #333; }
+  .c-vo.editable.hook-vo { color: #c9a227; font-weight: 600; }
+
+  .proof-visual { background: #e9e2d5; height: 170px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px; }
+  .proof-item { text-align: center; }
+  .proof-item img { width: 78px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,.25); display: block; }
+  .proof-item .lbl { font-size: 8px; font-weight: 800; color: #1FA37A; margin-top: 4px; }
+
+  .cta-visual { background: #0b1f3a; height: 170px; padding: 14px; position: relative; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+  .cta-text { flex: 1; }
+  .cta-brand { font-size: 14px; font-weight: 800; }
+  .cta-sub { font-size: 8px; color: #9fb0c9; letter-spacing: 1px; margin-top: 1px; }
+  .cta-headline { font-weight: 800; font-size: 14px; margin-top: 14px; line-height: 1.3; }
+  .cta-badges { display: flex; gap: 6px; margin-top: 16px; }
+  .badge2 { background: #000; border: 1px solid #555; border-radius: 4px; padding: 4px 8px; font-size: 8px; color: #fff; }
+  .cta-mock { width: 80px; height: 142px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.4); flex-shrink: 0; }
+  .cta-mock img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .footer-bar { display: grid; grid-template-columns: repeat(6,1fr); background: #0b1f3a; color: #fff; font-size: 10px; }
+  .footer-bar .item { padding: 14px 10px; border-right: 1px solid rgba(255,255,255,.1); font-weight: 700; line-height: 1.4; }
+  .footer-bar .item b { display: block; font-size: 11px; margin-bottom: 2px; }
+
+  .tagline { background: #f2f2f2; text-align: center; padding: 12px; font-size: 12px; font-style: italic; color: #777; }
+  .empty-state { padding: 60px 32px; text-align: center; color: #999; font-size: 14px; }
+  .save-note { background: #eaf6f0; border: 1px solid #b8e6cf; color: #0f6e4a; font-size: 12px; padding: 10px 32px; }
+  .save-note.warn { background: #fdeaea; border-color: #f0b8b8; color: #8a1212; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div>
+    <div class="brand"><span class="g">EQUINET</span> Ad Scenarios</div>
+    <div class="sub">Click any card to view &amp; edit the full 6-step storyboard</div>
+  </div>
+  <div class="header-controls">
+    <div class="editor-select">
+      <label>Editing as:</label>
+      <select id="editorSelect">
+        <option value="mk">Michael</option>
+        <option value="faezeh">Faezeh</option>
+        <option value="manager">Manager</option>
+      </select>
+    </div>
+    <div class="db-status connected" id="dbStatus"><span class="dot"></span><span id="dbStatusText">Connected to database</span></div>
+  </div>
+  <div class="count" id="countLabel">0 ads</div>
+</div>
+<div class="save-note" id="saveNote">All approvals and text edits save automatically to the shared database on this server. No files to manage.</div>
+
+<div class="filter-row">
+  <div class="label">Status</div>
+  <div class="filters" id="statusFilters"></div>
+</div>
+<div class="filter-row">
+  <div class="label">Approvals</div>
+  <div class="filters" id="approverFilters"></div>
+</div>
+<div class="filter-row">
+  <div class="label">Pain Point / Category</div>
+  <div class="filters" id="filters"></div>
+</div>
+<div class="gallery" id="gallery"></div>
+
+<div class="overlay-bg" id="overlayBg">
+  <div class="detail-doc" id="detailDoc"></div>
+</div>
+
+<script>
+let ads = [];
+const PROOF1 = "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/e36c1a66-a675-40c3-9c2e-f61e02bc09bf.jpg";
+const PROOF2 = "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/afd56da3-b5e2-40b3-90c1-1fb8a6c0c127.jpg";
+const PROOF3 = "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/f4351ee5-6b93-4524-973d-ebaa751913da.jpg";
+const PROOF4 = "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/6ad7f99f-eb48-478a-9f32-d22892fdcaa0.jpg";
+const CTA_PHONE = "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/97036065-1377-463a-a3c9-7fb22a8c4409.jpg";
+
+const EDITOR_COLORS = { mk: '#c0392b', faezeh: '#e07b1a', manager: '#0057B8' };
+
+let currentStatus = 'All';
+let currentApprover = 'All';
+let currentCategory = 'All';
+
+// ---------------- Server API (this is the entire "database" layer) ----------------
+async function loadFromServer() {
+  try {
+    const res = await fetch('/api/data');
+    if (!res.ok) throw new Error('bad response');
+    ads = await res.json();
+    setDbStatus(true, 'Connected to database');
+  } catch (err) {
+    console.error('Failed to load from server:', err);
+    setDbStatus(false, 'Cannot reach the server — is server.py running?');
+  }
+}
+
+async function saveToServer(row, field, value, editor) {
+  const flash = document.getElementById('savedFlash');
+  try {
+    const res = await fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ row, field, value, editor })
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'save failed');
+    if (flash) { flash.textContent = '\u2713 Saved to database'; flash.classList.remove('error'); flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 1200); }
+  } catch (err) {
+    console.error('Save failed:', err);
+    if (flash) { flash.textContent = '\u26a0 Save failed — check server'; flash.classList.add('error','show'); }
+  }
+}
+
+function setDbStatus(connected, text) {
+  const el = document.getElementById('dbStatus');
+  el.className = 'db-status ' + (connected ? 'connected' : 'disconnected');
+  document.getElementById('dbStatusText').textContent = text;
+  const note = document.getElementById('saveNote');
+  if (!connected) {
+    note.textContent = 'Cannot reach the server database. Start it with "python server.py" and reload this page.';
+    note.classList.add('warn');
+  } else {
+    note.classList.remove('warn');
+  }
+}
+
+function handleImgError(imgEl) {
+  imgEl.onerror = null;
+  imgEl.style.display = 'none';
+  const fallback = document.createElement('div');
+  fallback.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#e8e8e8;color:#999;font-size:12px;text-align:center;padding:10px;';
+  fallback.textContent = 'Image unavailable';
+  imgEl.parentElement.insertBefore(fallback, imgEl);
+}
+
+function badgeClass(funnel) {
+  if (funnel === 'TOF') return 'tof';
+  if (funnel === 'MOF') return 'mof';
+  return 'dual';
+}
+function statusClass(ceoApproved) { return ceoApproved ? 'approved' : 'raw'; }
+
+function applyFilters() {
+  let list = ads;
+  if (currentStatus === 'CEO Approved') list = list.filter(a => a.ceoApproved);
+  if (currentStatus === 'Raw Idea') list = list.filter(a => !a.ceoApproved);
+  if (currentApprover === 'MK Approved') list = list.filter(a => a.mkApproved);
+  if (currentApprover === 'Faezeh Approved') list = list.filter(a => a.faezehApproved);
+  if (currentApprover === 'Manager Approved') list = list.filter(a => a.managerApproved);
+  if (currentApprover === 'Pending Review') list = list.filter(a => !a.mkApproved && !a.faezehApproved && !a.managerApproved);
+  if (currentCategory !== 'All') list = list.filter(a => a.category === currentCategory);
+  renderGallery(list);
+}
+
+function approverTagsHTML(ad) {
+  let tags = '';
+  tags += `<span class="approver-tag ${ad.mkApproved ? 'mk' : 'pending'}">${ad.mkApproved ? '\u2713 Michael' : 'Michael'}</span>`;
+  tags += `<span class="approver-tag ${ad.faezehApproved ? 'faezeh' : 'pending'}">${ad.faezehApproved ? '\u2713 Faezeh' : 'Faezeh'}</span>`;
+  tags += `<span class="approver-tag ${ad.managerApproved ? 'manager' : 'pending'}">${ad.managerApproved ? '\u2713 Manager' : 'Manager'}</span>`;
+  return tags;
+}
+
+function renderGallery(list) {
+  const gallery = document.getElementById('gallery');
+  gallery.innerHTML = '';
+  if (list.length === 0) {
+    gallery.innerHTML = '<div class="empty-state">No ads match this filter combination.</div>';
+    document.getElementById('countLabel').textContent = '0 ads';
+    return;
+  }
+  list.forEach(ad => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.onclick = () => openDetail(ad.row);
+    card.innerHTML = `
+      <div class="thumb">
+        <span class="badge ${badgeClass(ad.funnel)}">${ad.funnel}</span>
+        <span class="approval-badge ${statusClass(ad.ceoApproved)}">${ad.ceoApproved ? 'CEO Approved' : 'Raw Idea'}</span>
+        <img src="${ad.hook_url}" loading="lazy" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="handleImgError(this)">
+      </div>
+      <div class="body">
+        <div class="cat">${ad.category}</div>
+        <div class="hook">${ad.hook1}</div>
+        <div class="approver-tags">${approverTagsHTML(ad)}</div>
+        <div class="cta-preview">${ad.cta_vo}</div>
+      </div>`;
+    gallery.appendChild(card);
+  });
+  document.getElementById('countLabel').textContent = list.length + ' ads';
+}
+
+function renderStatusFilters() {
+  const statuses = ['All', 'CEO Approved', 'Raw Idea'];
+  const filters = document.getElementById('statusFilters');
+  filters.innerHTML = '';
+  statuses.forEach(status => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (status === 'All' ? ' active' : '');
+    btn.textContent = status;
+    btn.onclick = () => {
+      currentStatus = status;
+      document.querySelectorAll('#statusFilters .filter-btn').forEach(b => b.classList.remove('active','ceo-active','raw-active'));
+      if (status === 'CEO Approved') btn.classList.add('ceo-active');
+      else if (status === 'Raw Idea') btn.classList.add('raw-active');
+      else btn.classList.add('active');
+      applyFilters();
+    };
+    filters.appendChild(btn);
+  });
+}
+
+function renderApproverFilters() {
+  const opts = ['All', 'MK Approved', 'Faezeh Approved', 'Manager Approved', 'Pending Review'];
+  const cls = { 'MK Approved': 'mk-active', 'Faezeh Approved': 'faezeh-active', 'Manager Approved': 'manager-active' };
+  const filters = document.getElementById('approverFilters');
+  filters.innerHTML = '';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (opt === 'All' ? ' active' : '');
+    btn.textContent = opt;
+    btn.onclick = () => {
+      currentApprover = opt;
+      document.querySelectorAll('#approverFilters .filter-btn').forEach(b => b.className = 'filter-btn');
+      btn.classList.add(opt === 'All' ? 'active' : (cls[opt] || 'active'));
+      applyFilters();
+    };
+    filters.appendChild(btn);
+  });
+}
+
+function renderFilters() {
+  const cats = ['All', ...new Set(ads.map(a => a.category))];
+  const filters = document.getElementById('filters');
+  filters.innerHTML = '';
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (cat === 'All' ? ' active' : '');
+    btn.textContent = cat;
+    btn.onclick = () => {
+      currentCategory = cat;
+      document.querySelectorAll('#filters .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilters();
+    };
+    filters.appendChild(btn);
+  });
+}
+
+function fieldStyle(ad, field) {
+  const editor = ad[field + '_editor'];
+  if (editor && EDITOR_COLORS[editor]) return `style="color:${EDITOR_COLORS[editor]}"`;
+  return '';
+}
+
+function fitOverlayText(el) {
+  if (!el) return;
+  let size = 15;
+  el.style.fontSize = size + 'px';
+  const maxH = 92;
+  let guard = 0;
+  while (el.scrollHeight > maxH && size > 9 && guard < 20) {
+    size -= 1;
+    el.style.fontSize = size + 'px';
+    guard++;
+  }
+}
+function fitAllOverlayText(root) {
+  root.querySelectorAll('.ov .txt').forEach(fitOverlayText);
+}
+
+function storyboardHTML(ad) {
+  return `
+    <button class="close-btn" onclick="closeDetail()">&times;</button>
+    <div class="title-bar">
+      <div>
+        <div class="line1"><span class="brand">EQUINET</span> &ndash; ${ad.category.toUpperCase()}</div>
+        <div class="line2">LENGTH: 20 SECONDS &nbsp;|&nbsp; RATIO: 16:9 (1920x1080) &nbsp;|&nbsp; STRUCTURE: HOOK &rarr; PROBLEM &rarr; SOLUTION &rarr; PROOF/DEMO &rarr; BENEFIT/OUTCOME &rarr; CTA</div>
+      </div>
+    </div>
+    <div class="approval-bar">
+      <div class="lbl">Approve:</div>
+      <button class="approve-btn mk ${ad.mkApproved ? 'on' : ''}" onclick="toggleApproval(${ad.row}, 'mkApproved', this)">${ad.mkApproved ? '\u2713 ' : ''}Michael</button>
+      <button class="approve-btn faezeh ${ad.faezehApproved ? 'on' : ''}" onclick="toggleApproval(${ad.row}, 'faezehApproved', this)">${ad.faezehApproved ? '\u2713 ' : ''}Faezeh</button>
+      <button class="approve-btn manager ${ad.managerApproved ? 'on' : ''}" onclick="toggleApproval(${ad.row}, 'managerApproved', this)">${ad.managerApproved ? '\u2713 ' : ''}Manager</button>
+      <span class="save-indicator" id="savedFlash">&#10003; Saved to database</span>
+      <div class="edit-hint">Click any on-screen text or voice over to edit. Saves automatically &mdash; no files to manage.</div>
+    </div>
+    <div class="col-header">
+      <div>TIME</div><div>VISUAL</div><div>ON-SCREEN TEXT</div><div>VOICE OVER</div>
+    </div>
+    <div class="row">
+      <div class="c-time"><div class="t">0:00&ndash;0:03</div><div class="s">HOOK</div></div>
+      <div class="c-visual">
+        <img src="${ad.hook_url}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="handleImgError(this)">
+        <div class="ov"><div class="txt" id="ov_${ad.row}_h" ${fieldStyle(ad,'h_on')}>${ad.h_on}</div></div>
+      </div>
+      <div class="editable" contenteditable="true" ${fieldStyle(ad,'h_on')} onblur="onFieldEdit(${ad.row}, 'h_on', this, 'ov_${ad.row}_h')">${ad.h_on}</div>
+      <div class="editable c-vo hook-vo" contenteditable="true" ${fieldStyle(ad,'h_vo')} onblur="onFieldEdit(${ad.row}, 'h_vo', this)">${ad.h_vo}</div>
+    </div>
+    <div class="row">
+      <div class="c-time"><div class="t">0:03&ndash;0:07</div><div class="s">PROBLEM</div></div>
+      <div class="c-visual">
+        <img src="${ad.problem_url}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="handleImgError(this)">
+        <div class="ov"><div class="txt" id="ov_${ad.row}_p" ${fieldStyle(ad,'p_on')}>${ad.p_on}</div></div>
+      </div>
+      <div class="editable" contenteditable="true" ${fieldStyle(ad,'p_on')} onblur="onFieldEdit(${ad.row}, 'p_on', this, 'ov_${ad.row}_p')">${ad.p_on}</div>
+      <div class="editable c-vo" contenteditable="true" ${fieldStyle(ad,'p_vo')} onblur="onFieldEdit(${ad.row}, 'p_vo', this)">${ad.p_vo}</div>
+    </div>
+    <div class="row">
+      <div class="c-time"><div class="t">0:07&ndash;0:10</div><div class="s">SOLUTION</div></div>
+      <div class="c-visual">
+        <img src="${ad.solution_url}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="handleImgError(this)">
+        <div class="ov"><div class="txt green" id="ov_${ad.row}_s" ${fieldStyle(ad,'s_on')}>${ad.s_on}</div></div>
+      </div>
+      <div class="editable" contenteditable="true" ${fieldStyle(ad,'s_on') || 'style="color:#1FA37A"'} onblur="onFieldEdit(${ad.row}, 's_on', this, 'ov_${ad.row}_s')">${ad.s_on}</div>
+      <div class="editable c-vo" contenteditable="true" ${fieldStyle(ad,'s_vo')} onblur="onFieldEdit(${ad.row}, 's_vo', this)">${ad.s_vo}</div>
+    </div>
+    <div class="row">
+      <div class="c-time"><div class="t">0:10&ndash;0:15</div><div class="s">PROOF/DEMO</div></div>
+      <div class="proof-visual">
+        <div class="proof-item"><img src="${PROOF1}" referrerpolicy="no-referrer" crossorigin="anonymous"><div class="lbl">NOTES &amp; PHOTOS</div></div>
+        <div class="proof-item"><img src="${PROOF2}" referrerpolicy="no-referrer" crossorigin="anonymous"><div class="lbl">SEND INVOICE</div></div>
+        <div class="proof-item"><img src="${PROOF3}" referrerpolicy="no-referrer" crossorigin="anonymous"><div class="lbl">SCHEDULE NEXT VISIT</div></div>
+        <div class="proof-item"><img src="${PROOF4}" referrerpolicy="no-referrer" crossorigin="anonymous"><div class="lbl">AUTO REMINDERS</div></div>
+      </div>
+      <div class="editable" contenteditable="true" ${fieldStyle(ad,'proof_on')} onblur="onFieldEdit(${ad.row}, 'proof_on', this)">${ad.proof_on}</div>
+      <div class="editable c-vo" contenteditable="true" ${fieldStyle(ad,'proof_vo')} onblur="onFieldEdit(${ad.row}, 'proof_vo', this)">${ad.proof_vo}</div>
+    </div>
+    <div class="row">
+      <div class="c-time"><div class="t">0:15&ndash;0:18</div><div class="s">BENEFIT/<br>OUTCOME</div></div>
+      <div class="c-visual">
+        <img src="${ad.benefit_url}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="handleImgError(this)">
+        <div class="ov"><div class="txt" id="ov_${ad.row}_b" ${fieldStyle(ad,'b_on')}>${ad.b_on}</div></div>
+      </div>
+      <div class="editable" contenteditable="true" ${fieldStyle(ad,'b_on')} onblur="onFieldEdit(${ad.row}, 'b_on', this, 'ov_${ad.row}_b')">${ad.b_on}</div>
+      <div class="editable c-vo" contenteditable="true" ${fieldStyle(ad,'b_vo')} onblur="onFieldEdit(${ad.row}, 'b_vo', this)">${ad.b_vo}</div>
+    </div>
+    <div class="row">
+      <div class="c-time"><div class="t">0:18&ndash;0:20</div><div class="s">CTA</div></div>
+      <div class="cta-visual">
+        <div class="cta-text">
+          <div class="cta-brand">&#9670; EQUINET</div>
+          <div class="cta-sub">BY MUSTAD HOOFCARE</div>
+          <div class="cta-headline">The business app<br>built for farriers.</div>
+          <div class="cta-badges">
+            <div class="badge2">App Store</div>
+            <div class="badge2">&#9654; Google Play</div>
+          </div>
+        </div>
+        <div class="cta-mock"><img src="${CTA_PHONE}" referrerpolicy="no-referrer" crossorigin="anonymous"></div>
+      </div>
+      <div class="c-onscreen" style="color:#1FA37A;padding:14px;font-weight:800;font-size:13px;">TRY PREMIUM<br>FREE FOR 30 DAYS</div>
+      <div class="editable c-vo" contenteditable="true" ${fieldStyle(ad,'cta_vo')} onblur="onFieldEdit(${ad.row}, 'cta_vo', this)">${ad.cta_vo}</div>
+    </div>
+    <div class="footer-bar">
+      <div class="item"><b>Offline</b>Syncs when back</div>
+      <div class="item"><b>Reminders</b>No more chasing</div>
+      <div class="item"><b>Invoicing</b>Get paid faster</div>
+      <div class="item"><b>Every Horse</b>All in one place</div>
+      <div class="item"><b>Team</b>Shared calendar</div>
+      <div class="item"><b>Xero</b>Books in sync</div>
+    </div>
+    <div class="tagline">Real farrier. Real work. Real results.</div>
+  `;
+}
+
+function onFieldEdit(row, field, el, ovId) {
+  const editor = document.getElementById('editorSelect').value;
+  const newText = el.innerText.trim();
+  const ad = ads.find(a => a.row === row);
+  ad[field] = newText;
+  ad[field + '_editor'] = editor;
+  el.style.color = EDITOR_COLORS[editor];
+  if (ovId) {
+    const ovEl = document.getElementById(ovId);
+    if (ovEl) {
+      ovEl.textContent = newText;
+      ovEl.style.color = EDITOR_COLORS[editor];
+      fitOverlayText(ovEl);
+    }
+  }
+  saveToServer(row, field, newText, editor);
+}
+
+function toggleApproval(row, approverField, btn) {
+  const ad = ads.find(a => a.row === row);
+  ad[approverField] = !ad[approverField];
+  btn.classList.toggle('on', ad[approverField]);
+  const name = btn.textContent.replace('\u2713 ', '');
+  btn.textContent = (ad[approverField] ? '\u2713 ' : '') + name;
+  saveToServer(row, approverField, ad[approverField], null);
+}
+
+function openDetail(row) {
+  const ad = ads.find(a => a.row === row);
+  const doc = document.getElementById('detailDoc');
+  doc.innerHTML = storyboardHTML(ad);
+  document.getElementById('overlayBg').classList.add('open');
+  requestAnimationFrame(() => fitAllOverlayText(doc));
+}
+
+function closeDetail() {
+  document.getElementById('overlayBg').classList.remove('open');
+  applyFilters();
+}
+
+document.getElementById('overlayBg').addEventListener('click', (e) => {
+  if (e.target.id === 'overlayBg') closeDetail();
+});
+
+async function init() {
+  await loadFromServer();
+  renderStatusFilters();
+  renderApproverFilters();
+  renderFilters();
+  applyFilters();
+}
+init();
+</script>
+</body>
+</html>
