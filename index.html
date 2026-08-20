@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>EQUINET Ad Scenarios</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", Arial, Helvetica, sans-serif; background: #f4f5f7; color: #111; }
+
+  .app-header { background: #000; padding: 22px 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .app-header .brand { font-size: 24px; font-weight: 800; color: #fff; }
+  .app-header .brand .g { color: #1FA37A; }
+  .app-header .sub { color: #9aa7bb; font-size: 13px; margin-top: 4px; }
+  .app-header .count { color: #fff; font-size: 13px; background: #0057B8; padding: 6px 14px; border-radius: 20px; font-weight: 600; }
+  .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .editor-select { display: flex; align-items: center; gap: 8px; background: #111; padding: 8px 14px; border-radius: 20px; }
+  .editor-select label { color: #9aa7bb; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .editor-select select { background: #222; color: #fff; border: 1px solid #444; border-radius: 12px; padding: 5px 10px; font-size: 13px; font-weight: 600; }
+
+  .io-btn { background: #222; color: #fff; border: 1px solid #444; border-radius: 20px; padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .io-btn:hover { background: #333; }
+
+  .db-status { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 6px 14px; border-radius: 20px; font-weight: 700; }
+  .db-status.connected { background: #1FA37A; color: #fff; }
+  .db-status.disconnected { background: #a33; color: #fff; }
+  .db-status .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  .setup-panel { max-width: 560px; margin: 60px auto; background: #fff; border-radius: 14px; padding: 32px; box-shadow: 0 8px 30px rgba(0,0,0,.1); }
+  .setup-panel h2 { margin-bottom: 6px; }
+  .setup-panel p { color: #666; font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
+  .setup-panel label { display: block; font-size: 12px; font-weight: 700; color: #444; margin-top: 14px; margin-bottom: 4px; }
+  .setup-panel input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+  .setup-panel .hint { font-size: 11px; color: #999; margin-top: 3px; }
+  .setup-panel button { margin-top: 22px; width: 100%; padding: 12px; background: #1FA37A; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .setup-panel button:hover { background: #178f68; }
+  .setup-panel .token-link { color: #0057B8; text-decoration: underline; }
+
+  .filter-row { padding: 14px 32px; background: #fff; border-bottom: 1px solid #e5e5e5; }
+  .filter-row .label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .filters { display: flex; gap: 10px; flex-wrap: wrap; }
+  .filter-btn { border: 1px solid #ddd; background: #fff; padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; color: #444; transition: all .15s; }
+  .filter-btn:hover { border-color: #0b1f3a; }
+  .filter-btn.active { background: #0b1f3a; color: #fff; border-color: #0b1f3a; }
+  .filter-btn.ceo-active { background: #1FA37A; border-color: #1FA37A; }
+  .filter-btn.raw-active { background: #888; border-color: #888; }
+  .filter-btn.mk-active { background: #c0392b; border-color: #c0392b; }
+  .filter-btn.faezeh-active { background: #e07b1a; border-color: #e07b1a; }
+  .filter-btn.manager-active { background: #0057B8; border-color: #0057B8; }
+
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 28px 32px; }
+  .card { background: #fff; border-radius: 14px; overflow: hidden; border: 1px solid #e8e8e8; cursor: pointer; transition: transform .15s, box-shadow .15s; display: flex; flex-direction: column; position: relative; }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+  .card .thumb { height: 150px; position: relative; overflow: hidden; background: #ddd; }
+  .card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card .badge { position: absolute; top: 10px; left: 10px; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; color: #fff; letter-spacing: .5px; }
+  .badge.tof { background: #0057B8; }
+  .badge.mof { background: #1FA37A; }
+  .badge.dual { background: #7d3fae; }
+  .card .approval-badge { position: absolute; top: 10px; right: 10px; font-size: 9px; font-weight: 800; padding: 4px 9px; border-radius: 20px; color: #fff; letter-spacing: .5px; text-transform: uppercase; }
+  .hide-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,.6); color: #fff; border: none; font-size: 10px; font-weight: 700; padding: 5px 10px; border-radius: 14px; cursor: pointer; z-index: 2; }
+  .hide-btn:hover { background: rgba(0,0,0,.85); }
+  .approval-badge.approved { background: #1FA37A; }
+  .approval-badge.raw { background: #888; }
+  .card .body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .card .cat { font-size: 11px; font-weight: 700; color: #1FA37A; text-transform: uppercase; letter-spacing: .5px; }
+  .card .hook { font-size: 15px; font-weight: 700; line-height: 1.35; color: #111; }
+  .card .cta-preview { margin-top: auto; font-size: 12px; color: #777; padding-top: 8px; border-top: 1px solid #f0f0f0; }
+  .card .approver-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .approver-tag { font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 10px; color: #fff; }
+  .approver-tag.mk { background: #c0392b; }
+  .approver-tag.faezeh { background: #e07b1a; }
+  .approver-tag.manager { background: #0057B8; }
+  .approver-tag.pending { background: #ddd; color: #888; }
+
+  .overlay-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; overflow-y: auto; padding: 40px 20px; }
+  .overlay-bg.open { display: block; }
+  .detail-doc { width: 1150px; max-width: 100%; margin: 0 auto; background: #fff; border-radius: 10px; overflow: hidden; position: relative; }
+  .close-btn { position: absolute; top: 14px; right: 18px; z-index: 5; background: rgba(255,255,255,0.15); color: #fff; border: none; width: 34px; height: 34px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+  .close-btn:hover { background: rgba(255,255,255,0.3); }
+
+  .title-bar { background: #000; padding: 20px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .title-bar .line1 { font-size: 24px; font-weight: 800; color: #fff; }
+  .title-bar .line1 .brand { color: #1FA37A; }
+  .title-bar .line2 { margin-top: 6px; font-size: 13px; color: #d0d0d0; letter-spacing: 0.5px; }
+
+  .approval-bar { background: #16233c; padding: 12px 28px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .approval-bar .lbl { color: #9aa7bb; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .approve-btn { border: 2px solid #555; background: transparent; color: #ccc; padding: 6px 14px; border-radius: 18px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; }
+  .approve-btn.mk.on { background: #c0392b; border-color: #c0392b; color: #fff; }
+  .approve-btn.faezeh.on { background: #e07b1a; border-color: #e07b1a; color: #fff; }
+  .approve-btn.manager.on { background: #0057B8; border-color: #0057B8; color: #fff; }
+  .edit-hint { color: #9aa7bb; font-size: 11px; margin-left: auto; font-style: italic; max-width: 260px; }
+  .save-indicator { font-size: 11px; color: #1FA37A; font-weight: 700; opacity: 0; transition: opacity .3s; }
+  .save-indicator.show { opacity: 1; }
+  .save-indicator.error { color: #e74c3c; }
+
+  .col-header { display: grid; grid-template-columns: 110px 300px 1fr 1fr; background: #0b1f3a; }
+  .col-header div { padding: 10px 16px; color: #fff; font-weight: 700; font-size: 12px; letter-spacing: 1px; }
+
+  .row { display: grid; grid-template-columns: 110px 300px 1fr 1fr; border-bottom: 1px solid #ddd; }
+  .row:nth-child(odd) { background: #fafafa; }
+  .c-time { padding: 14px; }
+  .c-time .t { color: #1FA37A; font-weight: 800; font-size: 14px; }
+  .c-time .s { font-weight: 800; font-size: 12px; color: #222; margin-top: 2px; }
+
+  .c-visual { position: relative; height: 170px; overflow: hidden; background: #ccc; }
+  .c-visual img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ov { position: absolute; left: 0; right: 0; bottom: 0; max-height: 100px; padding: 10px 14px; background: linear-gradient(transparent, rgba(0,0,0,.8)); overflow: hidden; }
+  .ov .txt { color: #fff; font-weight: 800; font-size: 15px; line-height: 1.2; word-break: break-word; overflow-wrap: break-word; }
+  .ov .txt.green { color: #1FA37A; }
+
+  .editable { padding: 14px; font-weight: 800; font-size: 13px; color: #111; line-height: 1.35; outline: none; cursor: text; border-radius: 4px; transition: background .15s; word-break: break-word; }
+  .editable:hover { background: #fffbe6; }
+  .editable:focus { background: #fff9db; box-shadow: inset 0 0 0 2px #f0d060; }
+  .c-vo.editable { font-weight: 400; font-size: 13px; color: #333; }
+  .c-vo.editable.hook-vo { color: #c9a227; font-weight: 600; }
+
+  .proof-visual { background: #e9e2d5; height: 170px; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px; }
+  .testimonial-visual { position: relative; }
+  .testimonial-badge { position: absolute; top: 10px; left: 10px; background: #1FA37A; color: #fff; font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; }
+  .testimonial-overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 14px; background: linear-gradient(transparent, rgba(0,0,0,.75)); }
+  .quote-mark { color: #1FA37A; font-size: 32px; font-weight: 800; line-height: 1; }
+  .testimonial-name { color: #fff; font-size: 11px; font-weight: 700; margin-top: 2px; }
+  .proof-item { text-align: center; }
+  .proof-item img { width: 78px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,.25); display: block; }
+  .proof-item .lbl { font-size: 8px; font-weight: 800; color: #1FA37A; margin-top: 4px; }
+
+  .cta-visual { background: #0b1f3a; height: 170px; padding: 14px; position: relative; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+  .cta-text { flex: 1; }
+  .cta-brand { font-size: 14px; font-weight: 800; }
+  .cta-sub { font-size: 8px; color: #9fb0c9; letter-spacing: 1px; margin-top: 1px; }
+  .cta-headline { font-weight: 800; font-size: 14px; margin-top: 14px; line-height: 1.3; }
+  .cta-badges { display: flex; gap: 6px; margin-top: 16px; }
+  .badge2 { background: #000; border: 1px solid #555; border-radius: 4px; padding: 4px 8px; font-size: 8px; color: #fff; }
+  .cta-mock { width: 80px; height: 142px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.4); flex-shrink: 0; }
+  .cta-mock img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .footer-bar { display: grid; grid-template-columns: repeat(6,1fr); background: #0b1f3a; color: #fff; font-size: 10px; }
+  .footer-bar .item { padding: 14px 10px; border-right: 1px solid rgba(255,255,255,.1); font-weight: 700; line-height: 1.4; }
+  .footer-bar .item b { display: block; font-size: 11px; margin-bottom: 2px; }
+
+  .tagline { background: #f2f2f2; text-align: center; padding: 12px; font-size: 12px; font-style: italic; color: #777; }
+  .empty-state { padding: 60px 32px; text-align: center; color: #999; font-size: 14px; }
+  .save-note { background: #eaf6f0; border: 1px solid #b8e6cf; color: #0f6e4a; font-size: 12px; padding: 10px 32px; }
+  .save-note.warn { background: #fdeaea; border-color: #f0b8b8; color: #8a1212; }
+</style>
+</head>
+<body>
+
+<div id="mainApp" style="display:block;">
+  <div class="app-header">
+    <div>
+      <div class="brand"><span class="g">EQUINET</span> Ad Scenarios</div>
+      <div class="sub">Click any card to view &amp; edit the full 6-step storyboard</div>
+    </div>
+    <div class="header-controls">
+      <div class="editor-select">
+        <label>Editing as:</label>
+        <select id="editorSelect">
+          <option value="mk">MK</option>
+          <option value="faezeh">Faezeh</option>
+          <option value="manager">Manager</option>
+          <option value="mreza">Mohammad Reza</option>
+        </select>
+      </div>
+      <div class="db-status connected" id="dbStatus"><span class="dot"></span><span id="dbStatusText">Connected to GitHub</span></div>
+      
+    </div>
+    <div class="count" id="countLabel">0 ads</div>
+  </div>
+  <div class="save-note" id="saveNote">All approvals and text edits save automatically as commits to your GitHub repo.</div>
+
+  <div class="filter-row">
+    <div class="label">Status</div>
+    <div class="filters" id="statusFilters"></div>
+  </div>
+  <div class="gallery" id="gallery"></div>
+</div>
+
+<div class="overlay-bg" id="overlayBg">
+  <div class="detail-doc" id="detailDoc"></div>
+</div>
+
+<script id="static-config" type="application/json">
+[
+  {
+    "row": 3,
+    "category": "Admin & Operations",
+    "funnel": "MOF",
+    "ceoApproved": false,
+    "hook1": "DONE SHOEING?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/40431303-215b-4962-b849-cac4b9ff7431.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/5491bdb0-91f3-427b-9b3e-f71c915b884e.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/4145acca-e181-410b-a13f-e155cdfb8f21.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/651bcad1-872b-4c29-a159-f05a962799ff.jpg"
+  },
+  {
+    "row": 4,
+    "category": "Admin & Operations",
+    "funnel": "MOF",
+    "ceoApproved": false,
+    "hook1": "RAIN-SOAKED SLIPS?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/0f0a1cb0-62b6-467e-b27e-b76c39715f44.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/13d7ccf6-6696-41f6-badc-958cbaf2ecaa.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/98f71815-3b6c-42db-8ed1-cc656512e81c.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/68e11d00-191d-402d-b277-def0adee979d.jpg"
+  },
+  {
+    "row": 5,
+    "category": "Admin & Operations",
+    "funnel": "MOF",
+    "ceoApproved": false,
+    "hook1": "40+ HORSES TO REMEMBER?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/4dc82664-5a96-42b3-8900-f7df0ca48102.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/28cdc4be-6dac-4275-ac1b-a76cdb1c701e.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/65dda853-3e49-4394-b305-110a2d316715.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/16b1a82e-b796-4a99-a3bb-f98d93c05060.jpg"
+  },
+  {
+    "row": 6,
+    "category": "Admin & Operations",
+    "funnel": "TOF/MOF (dual-use)",
+    "ceoApproved": false,
+    "hook1": "NO SIGNAL AT THE BARN?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/b859aafc-d3aa-4d17-b6f8-d36da8867d0a.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/7c8f8b99-e9c6-495d-90d5-f798a963e74f.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/18e4b854-95e8-4190-959f-29062e82e628.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/cf8273c4-7691-42c7-a213-0ed56a4dc476.jpg"
+  },
+  {
+    "row": 7,
+    "category": "Admin & Operations",
+    "funnel": "MOF",
+    "ceoApproved": false,
+    "hook1": "DUE IN 6 WEEKS?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/32957aac-8b8e-47e5-a573-d3b20740b3be.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/67b7eb73-2b41-4559-bc1c-4a4415647413.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/d6efc766-b0f2-4237-8ffb-86625eb56eb2.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/ff9c37d6-0b5e-426b-9a73-7d1148232ac8.jpg"
+  },
+  {
+    "row": 8,
+    "category": "Inventory & Supply",
+    "funnel": "MOF",
+    "ceoApproved": false,
+    "hook1": "RUNNING LOW ON SHOES?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/d25f6e25-8fe1-46d9-a9d3-beb46b561381.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/1bd2561b-6cc8-4c26-bc0d-d6d3fdc79817.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/bb588053-2e7a-4f7c-8774-9ba4d089ce51.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/427e87c3-d077-447b-ae3a-b9be40e2e8c1.jpg"
+  },
+  {
+    "row": 9,
+    "category": "Financial Clarity",
+    "funnel": "MOF",
+    "ceoApproved": false,
+    "hook1": "KNOW YOUR REAL COSTS?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/7d0fd1ad-abcf-436c-82b4-ea654b5700f3.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/5add76e9-d958-4198-8481-d58636e3a38a.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/60df83dc-3583-43e3-8a6d-e247fa0f6e51.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/02493747-2f77-4868-ba39-8bd70209024b.jpg"
+  },
+  {
+    "row": 10,
+    "category": "Trust & Data Security",
+    "funnel": "MOF",
+    "ceoApproved": false,
+    "hook1": "LOST YOUR CLIENT LIST BEFORE?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/eddfd5af-1e12-4784-853f-93e08bfb32c8.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/123c43e0-eb9c-4451-a99d-9f1b9ebbc0b7.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/68d9140d-c29a-4e52-9a24-48334db0ef51.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/d810d35c-a97a-4f30-843a-bfe95d065985.jpg"
+  },
+  {
+    "row": 11,
+    "category": "Admin & Operations",
+    "funnel": "MOF",
+    "ceoApproved": false,
+    "hook1": "LAST HORSE DONE. PAPERWORK ISN",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/573ca749-f516-4e2e-960f-adb79e983335.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/028306b7-1bbe-4d67-9bdc-2480413dc76e.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/b65ff0e9-9943-4543-aea3-914f89f803cf.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/cefae60c-1d75-4c58-a11d-e2899ed0e8ff.jpg"
+  },
+  {
+    "row": 12,
+    "category": "Social Proof & Testimonials",
+    "funnel": "MOF",
+    "ceoApproved": false,
+    "hook1": "",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/2a681616-0826-499f-8447-2d5705523be1.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/e9690132-1d2d-4ebc-80f8-e23a62519ea8.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/bdebbc72-f84d-490c-b0ac-2a9bf9dc04ad.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/44f63492-7099-405a-b15d-e3de31248d42.jpg"
+  },
+  {
+    "row": 16,
+    "category": "New Farrier Acquisition \u2014 Cold Audience (Facebook TOF)",
+    "funnel": "TOF",
+    "ceoApproved": true,
+    "hook1": "LAST HORSE DONE?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/9324ab20-e2dd-474a-afc4-622c819861a0.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/68c80215-d3a6-49fd-b92e-fabb4ccebf20.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/125c200c-6f9f-4fed-9eaa-4a5be99c1544.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/8867445e-a1a8-4a6b-92cb-b8d45af06cbf.jpg"
+  },
+  {
+    "row": 17,
+    "category": "New Farrier Acquisition \u2014 Cold Audience (Facebook TOF)",
+    "funnel": "TOF",
+    "ceoApproved": true,
+    "hook1": "STILL CHASING CLIENTS?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/e8c7810b-8770-40be-b699-7e6bd4d356c3.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/8e20f042-b618-44e8-83e1-f8803df09f88.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/673262ee-73d0-48f4-9d0e-92539cea5c9d.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/2193adc7-2725-4737-9439-84d3716f9b54.jpg"
+  },
+  {
+    "row": 18,
+    "category": "New Farrier Acquisition \u2014 Cold Audience (Facebook TOF)",
+    "funnel": "TOF",
+    "ceoApproved": true,
+    "hook1": "REMEMBER EVERY HORSE?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/59e591d6-4ee1-4d87-9758-038c6ec39b34.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/e3545fed-0801-487a-a4e0-94a92c6cf7f5.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/87a90d34-1b24-4fe8-9389-3e28c1ce989a.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/feb9e0d5-c244-45df-a5f4-01799aa6b4a4.jpg"
+  },
+  {
+    "row": 19,
+    "category": "New Farrier Acquisition \u2014 Cold Audience (Facebook TOF)",
+    "funnel": "TOF",
+    "ceoApproved": true,
+    "hook1": "FINISH THE JOB.",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/33675111-ecda-4074-8646-c86305182730.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/77c3c6a4-150b-472f-8bdf-1aa18f936ce1.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/53291341-af71-49f8-a34e-83f388fd7b45.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/b0086669-c9cd-421a-ad02-6ed49bc1cbb8.jpg"
+  },
+  {
+    "row": 20,
+    "category": "New Farrier Acquisition \u2014 Cold Audience (Facebook TOF)",
+    "funnel": "TOF",
+    "ceoApproved": true,
+    "hook1": "NO SIGNAL AT THE BARN?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/b859aafc-d3aa-4d17-b6f8-d36da8867d0a.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/7c8f8b99-e9c6-495d-90d5-f798a963e74f.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/18e4b854-95e8-4190-959f-29062e82e628.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/cf8273c4-7691-42c7-a213-0ed56a4dc476.jpg"
+  },
+  {
+    "row": 23,
+    "category": "Existing / Dormant Users Reactivation (Facebook MOF)",
+    "funnel": "MOF",
+    "ceoApproved": true,
+    "hook1": "USED EQUINET BEFORE? TAKE ANOTHER LOOK.",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/a828c8d6-9d53-4570-9c98-c8e80a688fb3.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/e36c1a66-a675-40c3-9c2e-f61e02bc09bf.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/afd56da3-b5e2-40b3-90c1-1fb8a6c0c127.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/cefae60c-1d75-4c58-a11d-e2899ed0e8ff.jpg"
+  },
+  {
+    "row": 24,
+    "category": "Social Proof & Testimonials \u2014 Eva Clark",
+    "funnel": "MOF",
+    "ceoApproved": true,
+    "hook1": "Remember when reminders were all on you?",
+    "hook_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/dff3e17d-763c-4864-9676-8769781c022e.jpg",
+    "problem_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/f13ef63f-d2cf-4e7c-8fed-8ac9baca7d18.jpg",
+    "solution_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/6ad7f99f-eb48-478a-9f32-d22892fdcaa0.jpg",
+    "benefit_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/18ab8d47-dec4-424d-b8f3-a938edfe86a4.jpg",
+    "proofType": "testimonial",
+    "proof_bg_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/18ab8d47-dec4-424d-b8f3-a938edfe86a4.jpg",
+    "proof_name": "Eva Clark, APF-III \u2014 Oregon",
+    "proof_badge": "Real EQUINET Customer"
+  }
+]
+</script>
+
+<script>
+const STATIC_CONFIG = JSON.parse(document.getElementById('static-config').textContent);
+const PROOF1 = "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/e36c1a66-a675-40c3-9c2e-f61e02bc09bf.jpg";
+const PROOF2 = "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/afd56da3-b5e2-40b3-90c1-1fb8a6c0c127.jpg";
+const PROOF3 = "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/f4351ee5-6b93-4524-973d-ebaa751913da.jpg";
+const PROOF4 = "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/6ad7f99f-eb48-478a-9f32-d22892fdcaa0.jpg";
+const CTA_PHONE = "https://d2ol7oe51mr4n9.cloudfront.net/user_3HuteLW03emt9uCkHpZfhwZDVdU/97036065-1377-463a-a3c9-7fb22a8c4409.jpg";
+
+const EDITOR_COLORS = { mk: '#c0392b', faezeh: '#e07b1a', manager: '#0057B8', mreza: '#8e44ad' };
+const FIELD_LIST = ["h_on","h_vo","p_on","p_vo","s_on","s_vo","proof_on","proof_vo","b_on","b_vo","cta_vo"];
+const APPROVAL_FIELDS = ["mkApproved","faezehApproved","managerApproved","hidden"];
+const CSV_COLUMNS = ["row", ...APPROVAL_FIELDS, ...FIELD_LIST, ...FIELD_LIST.map(f => f + "_editor")];
+
+let ads = [];
+let currentStatus = 'All';
+
+async function loadDatabase() {
+  try {
+    const res = await fetch('/api/data');
+    if (!res.ok) throw new Error('bad response: ' + res.status);
+    const data = await res.json();
+    csvToAds(data.csv);
+    setDbStatus(true, 'Connected');
+  } catch (err) {
+    console.error(err);
+    setDbStatus(false, 'Cannot reach the database right now');
+  }
+}
+
+function csvToAds(csvText) {
+  const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+  parsed.data.forEach(r => {
+    const ad = ads.find(a => a.row === parseInt(r.row));
+    if (!ad) return;
+    APPROVAL_FIELDS.forEach(f => { ad[f] = (String(r[f]).toUpperCase() === 'TRUE'); });
+    FIELD_LIST.forEach(f => {
+      if (r[f]) ad[f] = r[f];
+      if (r[f + '_editor']) ad[f + '_editor'] = r[f + '_editor'];
+    });
+  });
+}
+
+function adsToCsv() {
+  const rows = ads.map(ad => {
+    const r = { row: ad.row };
+    APPROVAL_FIELDS.forEach(f => { r[f] = ad[f] ? 'TRUE' : 'FALSE'; });
+    FIELD_LIST.forEach(f => {
+      r[f] = ad[f] || '';
+      r[f + '_editor'] = ad[f + '_editor'] || '';
+    });
+    return r;
+  });
+  return Papa.unparse({ fields: CSV_COLUMNS, data: rows });
+}
+
+let saveQueue = Promise.resolve();
+function queueSave(message) {
+  saveQueue = saveQueue.then(() => writeDatabase(message)).catch(e => console.error(e));
+  return saveQueue;
+}
+
+async function writeDatabase(message) {
+  const flash = document.getElementById('savedFlash');
+  try {
+    const res = await fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ csv: adsToCsv(), message })
+    });
+    const data = await res.json();
+    if (res.status === 409 || data.conflict) {
+      const reload = await fetch('/api/data');
+      const reloadData = await reload.json();
+      csvToAds(reloadData.csv);
+      applyFilters();
+      alert('Someone else saved a change just now. The page has refreshed with the latest data — please redo your edit.');
+      return;
+    }
+    if (!data.ok) throw new Error(data.error || 'save failed');
+    if (flash) { flash.textContent = '\u2713 Saved'; flash.classList.remove('error'); flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 1200); }
+  } catch (err) {
+    console.error('Save failed:', err);
+    if (flash) { flash.textContent = '\u26a0 Save failed'; flash.classList.add('error','show'); }
+  }
+}
+
+function setDbStatus(connected, text) {
+  const el = document.getElementById('dbStatus');
+  el.className = 'db-status ' + (connected ? 'connected' : 'disconnected');
+  document.getElementById('dbStatusText').textContent = text;
+  const note = document.getElementById('saveNote');
+  if (!connected) {
+    note.textContent = 'Cannot reach the database right now. Try reloading the page in a moment.';
+    note.classList.add('warn');
+  } else {
+    note.classList.remove('warn');
+  }
+}
+
+function handleImgError(imgEl) {
+  imgEl.onerror = null;
+  imgEl.style.display = 'none';
+  const fallback = document.createElement('div');
+  fallback.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#e8e8e8;color:#999;font-size:12px;text-align:center;padding:10px;';
+  fallback.textContent = 'Image unavailable';
+  imgEl.parentElement.insertBefore(fallback, imgEl);
+}
+
+function badgeClass(funnel) {
+  if (funnel === 'TOF') return 'tof';
+  if (funnel === 'MOF') return 'mof';
+  return 'dual';
+}
+
+function applyFilters() {
+  let list;
+  if (currentStatus === 'Hidden') {
+    list = ads.filter(a => a.hidden);
+  } else {
+    list = ads.filter(a => !a.hidden);
+    if (currentStatus === 'Faezeh Approved') list = list.filter(a => a.faezehApproved);
+    if (currentStatus === 'Pending') list = list.filter(a => !a.faezehApproved);
+  }
+  renderGallery(list, currentStatus === 'Hidden');
+}
+
+function toggleHidden(row, event) {
+  if (event) event.stopPropagation();
+  const ad = ads.find(a => a.row === row);
+  ad.hidden = !ad.hidden;
+  queueSave(`${ad.hidden ? 'Hide' : 'Unhide'} ad ${row}`);
+  applyFilters();
+}
+
+function renderGallery(list, isHiddenView) {
+  const gallery = document.getElementById('gallery');
+  gallery.innerHTML = '';
+  if (list.length === 0) {
+    gallery.innerHTML = `<div class="empty-state">${isHiddenView ? 'Nothing is hidden right now.' : 'No ads match this filter.'}</div>`;
+    document.getElementById('countLabel').textContent = '0 ads';
+    return;
+  }
+  list.forEach(ad => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.onclick = () => openDetail(ad.row);
+    card.innerHTML = `
+      <div class="thumb">
+        <span class="badge ${badgeClass(ad.funnel)}">${ad.funnel}</span>
+        <span class="approval-badge ${ad.faezehApproved ? 'approved' : 'raw'}">${ad.faezehApproved ? 'Faezeh Approved' : 'Pending'}</span>
+        <button class="hide-btn" onclick="toggleHidden(${ad.row}, event)">${isHiddenView ? '\u21ba Unhide' : '\u2715 Hide'}</button>
+        <img src="${ad.hook_url}" loading="lazy" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="handleImgError(this)">
+      </div>
+      <div class="body">
+        <div class="cat">${ad.category}</div>
+        <div class="hook">${ad.hook1}</div>
+        <div class="cta-preview">${ad.cta_vo}</div>
+      </div>`;
+    gallery.appendChild(card);
+  });
+  document.getElementById('countLabel').textContent = list.length + ' ads';
+}
+
+function renderStatusFilters() {
+  const statuses = ['All', 'Faezeh Approved', 'Pending', 'Hidden'];
+  const cls = { 'Faezeh Approved': 'faezeh-active', 'Pending': 'raw-active', 'Hidden': 'mk-active' };
+  const filters = document.getElementById('statusFilters');
+  filters.innerHTML = '';
+  statuses.forEach(status => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (status === 'All' ? ' active' : '');
+    btn.textContent = status;
+    btn.onclick = () => {
+      currentStatus = status;
+      document.querySelectorAll('#statusFilters .filter-btn').forEach(b => b.className = 'filter-btn');
+      btn.classList.add(status === 'All' ? 'active' : (cls[status] || 'active'));
+      applyFilters();
+    };
+    filters.appendChild(btn);
+  });
+}
+
+function fieldStyle(ad, field) {
+  const editor = ad[field + '_editor'];
+  if (editor && EDITOR_COLORS[editor]) return `style="color:${EDITOR_COLORS[editor]}"`;
+  return '';
+}
+
+function fitOverlayText(el) {
+  if (!el) return;
+  let size = 15;
+  el.style.fontSize = size + 'px';
+  const maxH = 92;
+  let guard = 0;
+  while (el.scrollHeight > maxH && size > 9 && guard < 20) {
+    size -= 1;
+    el.style.fontSize = size + 'px';
+    guard++;
+  }
+}
+function fitAllOverlayText(root) {
+  root.querySelectorAll('.ov .txt').forEach(fitOverlayText);
+}
+
+function storyboardHTML(ad) {
+  return `
+    <button class="close-btn" onclick="closeDetail()">&times;</button>
+    <div class="title-bar">
+      <div>
+        <div class="line1"><span class="brand">EQUINET</span> &ndash; ${ad.category.toUpperCase()}</div>
+        <div class="line2">LENGTH: 20 SECONDS &nbsp;|&nbsp; RATIO: 16:9 (1920x1080) &nbsp;|&nbsp; STRUCTURE: HOOK &rarr; PROBLEM &rarr; SOLUTION &rarr; PROOF/DEMO &rarr; BENEFIT/OUTCOME &rarr; CTA</div>
+      </div>
+    </div>
+    <div class="approval-bar">
+      <div class="lbl">Approve:</div>
+      <button class="approve-btn mk ${ad.mkApproved ? 'on' : ''}" onclick="toggleApproval(${ad.row}, 'mkApproved', this)">${ad.mkApproved ? '\u2713 ' : ''}MK</button>
+      <button class="approve-btn faezeh ${ad.faezehApproved ? 'on' : ''}" onclick="toggleApproval(${ad.row}, 'faezehApproved', this)">${ad.faezehApproved ? '\u2713 ' : ''}Faezeh</button>
+      <button class="approve-btn manager ${ad.managerApproved ? 'on' : ''}" onclick="toggleApproval(${ad.row}, 'managerApproved', this)">${ad.managerApproved ? '\u2713 ' : ''}Manager</button>
+      <button class="approve-btn hide-toggle-btn" onclick="toggleHidden(${ad.row}); closeDetail();">${ad.hidden ? '\u21ba Unhide' : '\u2715 Hide this ad'}</button>
+      <span class="save-indicator" id="savedFlash">&#10003; Saved to GitHub</span>
+      <div class="edit-hint">Click any text to edit. Saves as a commit automatically.</div>
+    </div>
+    <div class="col-header">
+      <div>TIME</div><div>VISUAL</div><div>ON-SCREEN TEXT</div><div>VOICE OVER</div>
+    </div>
+    <div class="row">
+      <div class="c-time"><div class="t">0:00&ndash;0:03</div><div class="s">HOOK</div></div>
+      <div class="c-visual">
+        <img src="${ad.hook_url}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="handleImgError(this)">
+        <div class="ov"><div class="txt" id="ov_${ad.row}_h" ${fieldStyle(ad,'h_on')}>${ad.h_on}</div></div>
+      </div>
+      <div class="editable" contenteditable="true" ${fieldStyle(ad,'h_on')} onblur="onFieldEdit(${ad.row}, 'h_on', this, 'ov_${ad.row}_h')">${ad.h_on}</div>
+      <div class="editable c-vo hook-vo" contenteditable="true" ${fieldStyle(ad,'h_vo')} onblur="onFieldEdit(${ad.row}, 'h_vo', this)">${ad.h_vo}</div>
+    </div>
+    <div class="row">
+      <div class="c-time"><div class="t">0:03&ndash;0:07</div><div class="s">PROBLEM</div></div>
+      <div class="c-visual">
+        <img src="${ad.problem_url}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="handleImgError(this)">
+        <div class="ov"><div class="txt" id="ov_${ad.row}_p" ${fieldStyle(ad,'p_on')}>${ad.p_on}</div></div>
+      </div>
+      <div class="editable" contenteditable="true" ${fieldStyle(ad,'p_on')} onblur="onFieldEdit(${ad.row}, 'p_on', this, 'ov_${ad.row}_p')">${ad.p_on}</div>
+      <div class="editable c-vo" contenteditable="true" ${fieldStyle(ad,'p_vo')} onblur="onFieldEdit(${ad.row}, 'p_vo', this)">${ad.p_vo}</div>
+    </div>
+    <div class="row">
+      <div class="c-time"><div class="t">0:07&ndash;0:10</div><div class="s">SOLUTION</div></div>
+      <div class="c-visual">
+        <img src="${ad.solution_url}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="handleImgError(this)">
+        <div class="ov"><div class="txt green" id="ov_${ad.row}_s" ${fieldStyle(ad,'s_on')}>${ad.s_on}</div></div>
+      </div>
+      <div class="editable" contenteditable="true" ${fieldStyle(ad,'s_on') || 'style="color:#1FA37A"'} onblur="onFieldEdit(${ad.row}, 's_on', this, 'ov_${ad.row}_s')">${ad.s_on}</div>
+      <div class="editable c-vo" contenteditable="true" ${fieldStyle(ad,'s_vo')} onblur="onFieldEdit(${ad.row}, 's_vo', this)">${ad.s_vo}</div>
+    </div>
+    <div class="row">
+      <div class="c-time"><div class="t">0:10&ndash;0:15</div><div class="s">PROOF/DEMO</div></div>
+      ${ad.proofType === 'testimonial' ? `
+      <div class="c-visual testimonial-visual">
+        <img src="${ad.proof_bg_url}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="handleImgError(this)">
+        <div class="testimonial-badge">&#10003; ${ad.proof_badge || 'Real EQUINET Customer'}</div>
+        <div class="testimonial-overlay">
+          <div class="quote-mark">&#8220;</div>
+          <div class="testimonial-name">${ad.proof_name || ''}</div>
+        </div>
+      </div>` : `
+      <div class="proof-visual">
+        <div class="proof-item"><img src="${PROOF1}" referrerpolicy="no-referrer" crossorigin="anonymous"><div class="lbl">NOTES &amp; PHOTOS</div></div>
+        <div class="proof-item"><img src="${PROOF2}" referrerpolicy="no-referrer" crossorigin="anonymous"><div class="lbl">SEND INVOICE</div></div>
+        <div class="proof-item"><img src="${PROOF3}" referrerpolicy="no-referrer" crossorigin="anonymous"><div class="lbl">SCHEDULE NEXT VISIT</div></div>
+        <div class="proof-item"><img src="${PROOF4}" referrerpolicy="no-referrer" crossorigin="anonymous"><div class="lbl">AUTO REMINDERS</div></div>
+      </div>`}
+      <div class="editable" contenteditable="true" ${fieldStyle(ad,'proof_on')} onblur="onFieldEdit(${ad.row}, 'proof_on', this)">${ad.proof_on}</div>
+      <div class="editable c-vo" contenteditable="true" ${fieldStyle(ad,'proof_vo')} onblur="onFieldEdit(${ad.row}, 'proof_vo', this)">${ad.proof_vo}</div>
+    </div>
+    <div class="row">
+      <div class="c-time"><div class="t">0:15&ndash;0:18</div><div class="s">BENEFIT/<br>OUTCOME</div></div>
+      <div class="c-visual">
+        <img src="${ad.benefit_url}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="handleImgError(this)">
+        <div class="ov"><div class="txt" id="ov_${ad.row}_b" ${fieldStyle(ad,'b_on')}>${ad.b_on}</div></div>
+      </div>
+      <div class="editable" contenteditable="true" ${fieldStyle(ad,'b_on')} onblur="onFieldEdit(${ad.row}, 'b_on', this, 'ov_${ad.row}_b')">${ad.b_on}</div>
+      <div class="editable c-vo" contenteditable="true" ${fieldStyle(ad,'b_vo')} onblur="onFieldEdit(${ad.row}, 'b_vo', this)">${ad.b_vo}</div>
+    </div>
+    <div class="row">
+      <div class="c-time"><div class="t">0:18&ndash;0:20</div><div class="s">CTA</div></div>
+      <div class="cta-visual">
+        <div class="cta-text">
+          <div class="cta-brand">&#9670; EQUINET</div>
+          <div class="cta-sub">BY MUSTAD HOOFCARE</div>
+          <div class="cta-headline">The business app<br>built for farriers.</div>
+          <div class="cta-badges">
+            <div class="badge2">App Store</div>
+            <div class="badge2">&#9654; Google Play</div>
+          </div>
+        </div>
+        <div class="cta-mock"><img src="${CTA_PHONE}" referrerpolicy="no-referrer" crossorigin="anonymous"></div>
+      </div>
+      <div class="c-onscreen" style="color:#1FA37A;padding:14px;font-weight:800;font-size:13px;">TRY PREMIUM<br>FREE FOR 30 DAYS</div>
+      <div class="editable c-vo" contenteditable="true" ${fieldStyle(ad,'cta_vo')} onblur="onFieldEdit(${ad.row}, 'cta_vo', this)">${ad.cta_vo}</div>
+    </div>
+    <div class="footer-bar">
+      <div class="item"><b>Offline</b>Syncs when back</div>
+      <div class="item"><b>Reminders</b>No more chasing</div>
+      <div class="item"><b>Invoicing</b>Get paid faster</div>
+      <div class="item"><b>Every Horse</b>All in one place</div>
+      <div class="item"><b>Team</b>Shared calendar</div>
+      <div class="item"><b>Xero</b>Books in sync</div>
+    </div>
+    <div class="tagline">Real farrier. Real work. Real results.</div>
+  `;
+}
+
+function onFieldEdit(row, field, el, ovId) {
+  const editor = document.getElementById('editorSelect').value;
+  const newText = el.innerText.trim();
+  const ad = ads.find(a => a.row === row);
+  ad[field] = newText;
+  ad[field + '_editor'] = editor;
+  el.style.color = EDITOR_COLORS[editor];
+  if (ovId) {
+    const ovEl = document.getElementById(ovId);
+    if (ovEl) {
+      ovEl.textContent = newText;
+      ovEl.style.color = EDITOR_COLORS[editor];
+      fitOverlayText(ovEl);
+    }
+  }
+  queueSave(`Edit ${field} on ad ${row} (by ${editor})`);
+}
+
+function toggleApproval(row, approverField, btn) {
+  const ad = ads.find(a => a.row === row);
+  ad[approverField] = !ad[approverField];
+  btn.classList.toggle('on', ad[approverField]);
+  const name = btn.textContent.replace('\u2713 ', '');
+  btn.textContent = (ad[approverField] ? '\u2713 ' : '') + name;
+  queueSave(`${ad[approverField] ? 'Approve' : 'Unapprove'} ad ${row} (${approverField})`);
+}
+
+function openDetail(row) {
+  const ad = ads.find(a => a.row === row);
+  const doc = document.getElementById('detailDoc');
+  doc.innerHTML = storyboardHTML(ad);
+  document.getElementById('overlayBg').classList.add('open');
+  requestAnimationFrame(() => fitAllOverlayText(doc));
+}
+
+function closeDetail() {
+  document.getElementById('overlayBg').classList.remove('open');
+  applyFilters();
+}
+
+document.getElementById('overlayBg').addEventListener('click', (e) => {
+  if (e.target.id === 'overlayBg') closeDetail();
+});
+
+async function startApp() {
+  ads = STATIC_CONFIG.map(a => ({ ...a,
+    mkApproved: false, faezehApproved: false, managerApproved: false, hidden: false,
+    h_on:'', h_vo:'', p_on:'', p_vo:'', s_on:'', s_vo:'',
+    proof_on: 'Notes & photos. Invoicing. Scheduling. Reminders \u2014 all done on-site.',
+    proof_vo: 'Notes, invoices, schedules and reminders \u2014 all handled without leaving the barn.',
+    b_on:'', b_vo:'', cta_vo:'Meet Equinet. Try Premium free for 30 days.'
+  }));
+  await loadDatabase();
+  renderStatusFilters();
+  applyFilters();
+}
+
+startApp();
+</script>
+</body>
+</html>
