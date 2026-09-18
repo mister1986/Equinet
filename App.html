@@ -1,0 +1,1134 @@
+<title>EQUINET Walkthrough</title>
+<meta name="description" content="Clickable demo of the EQUINET farrier &amp; horse-care app, sorted into its main flows and sub-flows.">
+<style>
+:root{
+  --bg:#eef1f8;
+  --surface:#ffffff;
+  --surface-alt:#f3f5fb;
+  --ink:#0f1a2b;
+  --ink-soft:#5c6678;
+  --ink-faint:#8a93a6;
+  --line:#e3e7f0;
+  --brand-1:#0a4bb0;
+  --brand-2:#1f8bef;
+  --brand-3:#e8f1ff;
+  --gold:#f2a53d;
+  --success:#1f9d5a;
+  --danger:#e5484d;
+  --purple:#7c6ff0;
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px -8px rgba(16,24,40,.12);
+  --radius-lg:22px;
+  --radius-md:14px;
+  --radius-sm:9px;
+  --font-display:'Manrope',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1220;
+    --surface:#131c2e;
+    --surface-alt:#182338;
+    --ink:#eef2fb;
+    --ink-soft:#a3adc2;
+    --ink-faint:#707c93;
+    --line:#233046;
+    --brand-3:#132340;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -8px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b1220;
+  --surface:#131c2e;
+  --surface-alt:#182338;
+  --ink:#eef2fb;
+  --ink-soft:#a3adc2;
+  --ink-faint:#707c93;
+  --line:#233046;
+  --brand-3:#132340;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -8px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-body);
+  margin:0;
+  padding-inline:16px;
+  padding-block:28px;
+}
+h1,h2,h3,h4{font-family:var(--font-display);margin:0;text-wrap:balance;}
+p{margin:0;}
+button{font-family:inherit;}
+::selection{background:var(--brand-2);color:#fff;}
+
+/* ---------- page shell ---------- */
+.page{max-width:1180px;margin:0 auto;}
+.masthead{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:26px;}
+.brandmark{display:flex;align-items:center;gap:12px;}
+.brandmark .mark{width:44px;height:44px;border-radius:50%;background:linear-gradient(160deg,var(--brand-1),var(--brand-2));display:flex;align-items:center;justify-content:center;flex:none;box-shadow:var(--shadow);}
+.brandmark .mark svg{width:24px;height:24px;}
+.brandmark .word{font-family:var(--font-display);font-weight:800;font-size:20px;letter-spacing:.2px;}
+.brandmark .sub{font-size:12.5px;color:var(--ink-soft);margin-top:1px;}
+.masthead h1{font-size:26px;font-weight:800;}
+.masthead .lede{color:var(--ink-soft);font-size:14.5px;max-width:46ch;margin-top:6px;line-height:1.5;}
+
+.layout{display:grid;grid-template-columns:340px minmax(0,1fr);gap:22px;align-items:start;}
+@media (max-width:880px){.layout{grid-template-columns:1fr;}}
+
+/* ---------- flow directory ---------- */
+.directory{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow);position:sticky;top:20px;max-height:calc(100vh - 40px);overflow:auto;}
+@media (max-width:880px){.directory{position:static;max-height:none;}}
+.directory-title{font-size:11.5px;font-weight:800;letter-spacing:.08em;color:var(--ink-faint);text-transform:uppercase;padding:4px 8px 10px;}
+.flow-group{margin-bottom:4px;}
+.flow-main{width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;text-align:left;padding:10px 8px;border-radius:var(--radius-sm);cursor:pointer;color:var(--ink);}
+.flow-main:hover{background:var(--surface-alt);}
+.flow-main.active{background:var(--brand-3);}
+.flow-main .num{font-family:var(--font-display);font-size:12px;font-weight:800;color:var(--brand-2);width:20px;flex:none;}
+.flow-main .txt{flex:1;}
+.flow-main .name{font-size:14px;font-weight:700;}
+.flow-main .desc{font-size:12px;color:var(--ink-soft);margin-top:1px;}
+.flow-subs{display:flex;flex-wrap:wrap;gap:6px;padding:2px 8px 14px 38px;}
+.flow-sub{font-size:12px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface-alt);color:var(--ink-soft);cursor:pointer;}
+.flow-sub:hover{border-color:var(--brand-2);color:var(--brand-2);}
+.flow-sub.active{background:var(--brand-2);border-color:var(--brand-2);color:#fff;}
+
+/* ---------- simulator column ---------- */
+.simcol{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.simcol-head{width:100%;max-width:400px;display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+.simcol-head .crumb{font-size:12px;color:var(--ink-faint);}
+.simcol-head .crumb b{color:var(--ink-soft);font-weight:700;}
+.simcol-head .screenname{font-size:15px;font-weight:800;font-family:var(--font-display);}
+.restart{font-size:12px;font-weight:700;color:var(--brand-2);background:none;border:none;cursor:pointer;padding:4px 2px;}
+
+.phone{
+  width:390px;height:820px;background:#000;border-radius:52px;padding:12px;box-shadow:0 30px 60px -20px rgba(10,20,40,.35),0 1px 0 rgba(255,255,255,.05) inset;flex:none;position:relative;
+}
+@media (max-width:430px){.phone{width:100%;max-width:390px;height:min(820px,132vw);}}
+.phone-screen{
+  position:relative;width:100%;height:100%;border-radius:40px;overflow:hidden;background:var(--surface);
+}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#000;border-radius:0 0 16px 16px;z-index:60;}
+
+.statusbar{height:44px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:14px;font-weight:700;color:#fff;position:relative;z-index:5;}
+.statusbar.on-light{color:var(--ink);}
+.statusbar .icons{display:flex;align-items:center;gap:4px;}
+
+.screenwrap{position:absolute;inset:0;display:flex;flex-direction:column;}
+.view{position:absolute;inset:0;display:none;flex-direction:column;background:var(--surface);}
+.view.active{display:flex;}
+.view-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.view-scroll::-webkit-scrollbar{display:none;}
+
+/* header w/ back */
+.app-header{flex:none;display:flex;align-items:center;gap:10px;padding:6px 16px 12px;background:var(--surface);}
+.app-header h2{font-size:17px;font-weight:800;flex:1;}
+.iconbtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface-alt);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;color:var(--ink);}
+.iconbtn svg{width:16px;height:16px;}
+
+/* bottom tab bar */
+.tabbar{flex:none;display:flex;border-top:1px solid var(--line);background:var(--surface);padding:8px 4px 10px;}
+.tabbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--ink-faint);font-size:10.5px;font-weight:700;cursor:pointer;padding:4px 0;}
+.tabbtn svg{width:21px;height:21px;}
+.tabbtn.active{color:var(--brand-2);}
+
+/* ---- generic UI atoms used across screens ---- */
+.blue-hero{background:linear-gradient(165deg,var(--brand-1),var(--brand-2));padding:14px 16px 18px;flex:none;}
+.searchbar{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.18);border-radius:12px;padding:9px 12px;color:#fff;}
+.searchbar input{background:none;border:none;color:#fff;font-size:13px;flex:1;outline:none;}
+.searchbar input::placeholder{color:rgba(255,255,255,.75);}
+.searchbar svg{width:15px;height:15px;flex:none;opacity:.85;}
+.hero-actions{display:flex;gap:8px;flex:none;}
+.pillicon{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;color:#fff;flex:none;cursor:pointer;position:relative;}
+.pillicon svg{width:16px;height:16px;}
+.dot-badge{position:absolute;top:6px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--gold);border:1.5px solid var(--brand-1);}
+
+.section{padding:16px;}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;}
+.section-head h3{font-size:14.5px;font-weight:800;}
+.section-head a{font-size:12px;color:var(--brand-2);font-weight:700;cursor:pointer;}
+
+.hscroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:2px;margin:0 -16px;padding-inline:16px;}
+.hscroll::-webkit-scrollbar{display:none;}
+.horse-card{flex:none;width:104px;cursor:pointer;}
+.horse-card .ph{width:104px;height:78px;border-radius:14px;object-fit:cover;background:var(--surface-alt);display:block;}
+.horse-card .nm{font-size:12.5px;font-weight:700;margin-top:6px;}
+.horse-card .own{font-size:11px;color:var(--ink-faint);}
+.horse-card.add{border:1.6px dashed var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;height:78px;gap:4px;color:var(--brand-2);font-size:12px;font-weight:700;background:var(--surface-alt);}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);padding:12px;box-shadow:var(--shadow);}
+.stack{display:flex;flex-direction:column;gap:10px;}
+.row{display:flex;align-items:center;gap:10px;}
+.row.between{justify-content:space-between;}
+
+.tile{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);padding:12px;cursor:pointer;}
+.tile .ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:none;color:#fff;}
+.tile .tt{flex:1;min-width:0;}
+.tile .tt .t1{font-size:13.5px;font-weight:700;}
+.tile .tt .t2{font-size:11.5px;color:var(--ink-faint);margin-top:1px;}
+.chev{color:var(--ink-faint);flex:none;}
+.chev svg{width:15px;height:15px;}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+.tag{font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:999px;display:inline-flex;align-items:center;gap:3px;}
+.tag.blue{background:var(--brand-3);color:var(--brand-2);}
+.tag.gold{background:#fdf0dd;color:#a5680d;}
+.tag.green{background:#e4f7ea;color:var(--success);}
+:root[data-theme="dark"] .tag.blue,:root:not([data-theme="light"]) .tag.blue{background:#173355;color:#8fc4ff;}
+:root[data-theme="dark"] .tag.gold,:root:not([data-theme="light"]) .tag.gold{background:#3a2c12;color:#f2c581;}
+:root[data-theme="dark"] .tag.green,:root:not([data-theme="light"]) .tag.green{background:#12321f;color:#79dba0;}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;font-size:14px;font-weight:800;padding:13px 16px;cursor:pointer;border:none;width:100%;}
+.btn.primary{background:linear-gradient(160deg,var(--brand-1),var(--brand-2));color:#fff;}
+.btn.ghost{background:var(--surface-alt);color:var(--ink);border:1px solid var(--line);}
+.btn.social{background:#000;color:#fff;}
+.btn.social.google{background:var(--surface);color:var(--ink);border:1px solid var(--line);}
+.btn:disabled{opacity:.45;cursor:default;}
+.linklike{color:var(--brand-2);font-weight:700;font-size:12.5px;cursor:pointer;background:none;border:none;text-align:center;}
+
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:11.5px;font-weight:700;color:var(--ink-soft);}
+.field input,.field select{border:1px solid var(--line);background:var(--surface-alt);border-radius:11px;padding:11px 12px;font-size:14px;color:var(--ink);outline:none;width:100%;}
+.field input:focus,.field select:focus{border-color:var(--brand-2);}
+
+.avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;flex:none;background:var(--surface-alt);}
+.avatar.sm{width:30px;height:30px;}
+.avatar-ph{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;flex:none;font-family:var(--font-display);}
+.avatar-ph.sm{width:30px;height:30px;font-size:11px;}
+.avatar-ph.lg{width:64px;height:64px;font-size:20px;}
+.horse-thumb{width:104px;height:78px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;flex:none;position:relative;overflow:hidden;}
+.horse-thumb svg{width:32px;height:32px;opacity:.92;}
+.horse-hero{width:100%;height:150px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;}
+.horse-hero svg{width:60px;height:60px;opacity:.92;}
+.horse-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;flex:none;}
+.horse-avatar svg{width:18px;height:18px;opacity:.92;}
+
+/* onboarding */
+.onb-slide{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px 26px;background:linear-gradient(180deg,var(--brand-1),var(--brand-2) 60%);color:#fff;position:relative;overflow:hidden;}
+.onb-illustration{width:100%;max-width:230px;height:180px;position:relative;margin-bottom:18px;}
+.onb-illustration .phonecard{position:absolute;background:#fff;color:var(--ink);border-radius:16px;box-shadow:0 12px 24px -8px rgba(0,0,0,.35);padding:10px 12px;width:170px;font-size:11px;font-weight:700;text-align:left;display:flex;gap:8px;align-items:center;}
+.onb-illustration .c1{top:6px;left:6px;transform:rotate(-6deg);}
+.onb-illustration .c2{top:62px;left:38px;transform:rotate(4deg);}
+.onb-illustration .ic2{width:30px;height:30px;border-radius:50%;background:var(--brand-2);display:flex;align-items:center;justify-content:center;color:#fff;flex:none;}
+.onb-illustration .ic2 svg{width:15px;height:15px;}
+.onb-title{font-size:22px;font-weight:800;margin-bottom:8px;}
+.onb-text{font-size:13.5px;line-height:1.55;opacity:.92;max-width:26ch;}
+.onb-dots{display:flex;gap:6px;justify-content:center;margin-top:20px;}
+.onb-dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4);}
+.onb-dots span.on{background:#fff;width:16px;border-radius:4px;}
+.onb-footer{flex:none;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(180deg,var(--brand-2),var(--brand-2));}
+
+/* splash */
+.splash{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle at 30% 20%,#2a9dff,var(--brand-1) 70%);color:#fff;}
+.splash .mark{width:78px;height:78px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.25);}
+.splash .mark svg{width:42px;height:42px;}
+.splash .word{font-family:var(--font-display);font-weight:800;font-size:22px;letter-spacing:.5px;}
+
+/* auth */
+.auth-top{padding:22px 20px 6px;flex:none;}
+.auth-top .kicker{width:46px;height:46px;border-radius:14px;background:var(--brand-3);color:var(--brand-2);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.auth-top h2{font-size:21px;font-weight:800;}
+.auth-top p{font-size:13px;color:var(--ink-soft);margin-top:5px;line-height:1.5;}
+.otp-row{display:flex;gap:8px;justify-content:space-between;}
+.otp-row input{width:40px;height:48px;text-align:center;font-size:18px;font-weight:800;border:1.5px solid var(--line);border-radius:11px;background:var(--surface-alt);color:var(--ink);}
+.otp-row input:focus{border-color:var(--brand-2);outline:none;}
+.divider-or{display:flex;align-items:center;gap:10px;color:var(--ink-faint);font-size:11.5px;font-weight:700;margin:6px 0;}
+.divider-or::before,.divider-or::after{content:"";flex:1;height:1px;background:var(--line);}
+.legalnote{font-size:11px;color:var(--ink-faint);text-align:center;line-height:1.5;}
+.legalnote b{color:var(--ink-soft);font-weight:700;}
+
+/* plans */
+.plantabs{display:flex;gap:6px;padding:2px 16px 12px;overflow-x:auto;}
+.plantabs::-webkit-scrollbar{display:none;}
+.plantab{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:12.5px;font-weight:700;color:var(--ink-soft);cursor:pointer;background:var(--surface);}
+.plantab.on{background:var(--ink);color:var(--surface);border-color:var(--ink);}
+.plancard{border:1.6px solid var(--line);border-radius:18px;padding:16px;position:relative;}
+.plancard.popular{border-color:var(--gold);}
+.plancard .badge{position:absolute;top:-11px;left:16px;background:var(--gold);color:#3a2600;font-size:10px;font-weight:800;padding:3px 10px;border-radius:999px;}
+.plancard .price{font-size:26px;font-weight:800;font-family:var(--font-display);}
+.plancard .price span{font-size:12.5px;font-weight:700;color:var(--ink-faint);}
+.plancard .plandesc{font-size:12px;color:var(--ink-soft);margin:4px 0 12px;}
+.plancard ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.plancard li{font-size:12.5px;color:var(--ink-soft);display:flex;gap:8px;align-items:flex-start;}
+.plancard li svg{width:14px;height:14px;flex:none;margin-top:1.5px;color:var(--success);}
+
+/* toggle switch */
+.switch{width:42px;height:25px;border-radius:999px;background:var(--line);position:relative;flex:none;cursor:pointer;transition:.15s;}
+.switch::after{content:"";position:absolute;top:2.5px;left:2.5px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:.15s;}
+.switch.on{background:var(--brand-2);}
+.switch.on::after{left:19.5px;}
+
+/* empty state */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:34px 20px;color:var(--ink-soft);}
+.empty .ic{width:52px;height:52px;border-radius:50%;background:var(--brand-3);color:var(--brand-2);display:flex;align-items:center;justify-content:center;}
+.empty h4{font-size:14px;}
+.empty p{font-size:12px;line-height:1.5;max-width:26ch;}
+
+/* record list item */
+.rec-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);}
+.rec-item:last-child{border-bottom:none;}
+.rec-item .dt{width:44px;flex:none;text-align:center;}
+.rec-item .dt .d{font-size:16px;font-weight:800;font-family:var(--font-display);}
+.rec-item .dt .m{font-size:10px;color:var(--ink-faint);text-transform:uppercase;font-weight:700;}
+.rec-item .bd{flex:1;min-width:0;}
+.rec-item .bd .t1{font-size:13px;font-weight:700;}
+.rec-item .bd .t2{font-size:11.5px;color:var(--ink-faint);margin-top:1px;}
+
+/* choose list (farrier picker) */
+.pick-row{display:flex;align-items:center;justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--line);font-size:13.5px;cursor:pointer;}
+.pick-row:last-child{border-bottom:none;}
+.pick-row .radio{width:19px;height:19px;border-radius:50%;border:2px solid var(--line);flex:none;position:relative;}
+.pick-row.on .radio{border-color:var(--brand-2);}
+.pick-row.on .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--brand-2);}
+.pick-row.on{color:var(--brand-2);font-weight:700;}
+.chip-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;}
+.chip-scroll::-webkit-scrollbar{display:none;}
+.chipsel{flex:none;padding:9px 14px;border-radius:12px;border:1px solid var(--line);font-size:12px;font-weight:700;color:var(--ink-soft);text-align:center;cursor:pointer;}
+.chipsel.on{background:var(--brand-3);border-color:var(--brand-2);color:var(--brand-2);}
+
+/* AI autofill banner */
+.ai-banner{display:flex;gap:10px;align-items:center;background:linear-gradient(120deg,#efe7ff,#e7f1ff);border:1px solid #d9c9ff;border-radius:14px;padding:12px;}
+:root[data-theme="dark"] .ai-banner,:root:not([data-theme="light"]) .ai-banner{background:linear-gradient(120deg,#241a3d,#132340);border-color:#3a2d5c;}
+.ai-banner .ic{width:34px;height:34px;border-radius:10px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;flex:none;}
+.ai-banner .tt{flex:1;}
+.ai-banner .tt b{font-size:12.5px;}
+.ai-banner .tt div{font-size:11px;color:var(--ink-soft);margin-top:1px;}
+
+/* calendar */
+.cal-strip{display:flex;gap:8px;padding:4px 16px 4px;overflow-x:auto;}
+.cal-strip::-webkit-scrollbar{display:none;}
+.cal-day{flex:none;width:46px;padding:10px 0;border-radius:14px;text-align:center;background:var(--surface-alt);cursor:pointer;}
+.cal-day .wd{font-size:10px;color:var(--ink-faint);font-weight:700;}
+.cal-day .dn{font-size:15px;font-weight:800;margin-top:2px;}
+.cal-day.on{background:linear-gradient(160deg,var(--brand-1),var(--brand-2));color:#fff;}
+.cal-day.on .wd{color:rgba(255,255,255,.8);}
+
+/* small helper */
+.mt6{margin-top:6px;}.mt10{margin-top:10px;}.mt14{margin-top:14px;}
+.muted{color:var(--ink-soft);}
+.center{text-align:center;}
+.hairline{height:1px;background:var(--line);margin:14px 0;}
+.badge-pro{font-size:10px;font-weight:800;background:linear-gradient(120deg,#7c6ff0,#4f46e5);color:#fff;padding:2px 8px;border-radius:999px;}
+.searchresults{padding:0 16px;}
+.recentchip{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:var(--surface-alt);border:1px solid var(--line);border-radius:999px;padding:6px 12px;margin:0 6px 8px 0;cursor:pointer;color:var(--ink-soft);}
+
+footer.note{max-width:1180px;margin:26px auto 0;font-size:12px;color:var(--ink-faint);text-align:center;line-height:1.6;}
+footer.note a{color:var(--brand-2);}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+
+<div class="page">
+  <div class="masthead">
+    <div>
+      <div class="brandmark">
+        <div class="mark">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3C9 8 3 10 3 16c0 2 1.6 3 3 1.6C7.5 15.8 10 13 12 13s4.5 2.8 6 4.6c1.4 1.4 3 .4 3-1.6 0-6-6-8-9-13Z" fill="#fff"/></svg>
+        </div>
+        <div>
+          <div class="word">EQUINET</div>
+          <div class="sub">Interactive product walkthrough</div>
+        </div>
+      </div>
+    </div>
+    <div style="max-width:420px;">
+      <h1>App flow, sorted &amp; simulated</h1>
+      <p class="lede">Rebuilt from the EQUINET Figma file as a working demo. Pick a main flow on the left — each one opens its sub-flows and drives the phone on the right exactly like the real app.</p>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- ================= FLOW DIRECTORY ================= -->
+    <nav class="directory" id="directory">
+      <div class="directory-title">Main flows</div>
+      <div id="flowlist"></div>
+    </nav>
+
+    <!-- ================= SIMULATOR ================= -->
+    <div class="simcol">
+      <div class="simcol-head">
+        <div class="crumb">Now viewing &middot; <b id="crumbText">Splash</b></div>
+        <button class="restart" onclick="restart()">↺ Restart</button>
+      </div>
+
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="notch"></div>
+          <div class="screenwrap" id="screenwrap"><!-- views injected --></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="note">Simulated with placeholder data for demonstration only &middot; built from the "Mobile Application" Figma file (pages v2.0 &middot; Clickable Demo) &middot; not affiliated with real EQUINET account data.</footer>
+</div>
+
+<script>
+/* ============================================================
+   ICONS (inline svg strings, stroke currentColor where useful)
+   ============================================================ */
+const I = {
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>',
+  horse:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 5-9 7-9 13 0 2 1.6 3 3 1.6 2.5-1.8 5-4.6 6-4.6s3.5 2.8 6 4.6c1.4 1.4 3 .4 3-1.6 0-6-6-8-9-13Z"/></svg>',
+  doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>',
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>',
+  bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 4-2 5-2 7h16c0-2-2-3-2-7Z"/><path d="M9.5 19a2.5 2.5 0 0 0 5 0"/></svg>',
+  headset:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 1 1 16 0v1"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M20 19a4 4 0 0 1-4 3h-2"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  bag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 13H5L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>',
+  box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v9l9 5 9-5V8M12 13v9"/></svg>',
+  invoice:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h10v18l-2.5-1.5L12 21l-2.5-1.5L7 21V3Z"/><path d="M9 8h6M9 12h6"/></svg>',
+  team:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20c.6-3 3-5 6-5s5.4 2 6 5M15.5 15.2c2 .3 3.7 1.9 4.2 4.3"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 5-3 7.5-7 9-4-1.5-7-4-7-9V6l7-3Z"/></svg>',
+  help:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1 1-1.1 1.9"/><path d="M12 17h.01"/></svg>',
+  cloud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1-1-7.9A5 5 0 0 1 16 8a4.5 4.5 0 0 1 1 8.9"/><path d="M12 21V13m0 0-2.5 2.5M12 13l2.5 2.5"/></svg>',
+  file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 13h6M9 17h4"/></svg>',
+  flag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/></svg>',
+  sparkle:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6L12 2Z"/><path d="M19 15l.9 2.7L22 18.5l-2.1.9L19 22l-.9-2.6-2.1-.9 2.1-.8Z"/></svg>',
+  nail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><circle cx="12" cy="19" r="2"/></svg>',
+  shoe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16c0-2 1-3 3-3.5 2-.5 3-1.5 4-3.5 1 1.5 3 2 5 2s3.5-.7 4.5.5 1 3.5-.5 4.5H4Z"/></svg>',
+  tooth:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 0-6 1.6-6 5.4 0 3 .9 5 1.7 7.4.4 1.2 1 2.2 2 2.2s1.1-2 1.4-3.4c.2-1 .5-1.6.9-1.6s.7.6.9 1.6c.3 1.4.4 3.4 1.4 3.4s1.6-1 2-2.2c.8-2.4 1.7-4.4 1.7-7.4C18 4.6 15 3 12 3Z"/></svg>',
+  vet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M9 5h6"/><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M9 15h6M12 12v6"/></svg>',
+  bug:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7 6 5M16 7l2-2M12 8v13M8 21v-3a4 4 0 0 1 8 0v3M5 12H3M21 12h-2M6 16l-2 1M18 16l2 1"/><ellipse cx="12" cy="12" rx="5" ry="6"/></svg>',
+  paw:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="10" r="2.2"/><circle cx="11" cy="6.5" r="2.2"/><circle cx="16" cy="6.5" r="2.2"/><circle cx="19.5" cy="11" r="2"/><path d="M12 13c-3.5 0-6.5 2.4-6.5 5.4 0 1.6 1.4 2.6 2.9 2 1.2-.5 2.3-1.2 3.6-1.2s2.4.7 3.6 1.2c1.5.6 2.9-.4 2.9-2 0-3-3-5.4-6.5-5.4Z"/></svg>',
+  drop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c4 4.6 7 8.2 7 11.5A7 7 0 0 1 5 14.5C5 11.2 8 7.6 12 3Z"/><path d="M9.5 15.2a2.6 2.6 0 0 0 2.6 2.3"/></svg>',
+  bizcase:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>',
+};
+
+/* ============================================================
+   DATA — the two "clients" this farrier / horse-care account manages
+   ============================================================ */
+const HORSES = [
+  {id:'dakota', name:'Dakota', owner:'Jennifer Cole', grad:'linear-gradient(135deg,#0a4bb0,#1f8bef)', breed:'Friesian &middot; 7 yrs'},
+  {id:'toni', name:'Toni', owner:'Marcus Reed', grad:'linear-gradient(135deg,#6d5fd8,#a78bfa)', breed:'Andalusian &middot; 5 yrs'},
+  {id:'olivia', name:'Olivia', owner:'Sarah Mitchell', grad:'linear-gradient(135deg,#e3902a,#f2c073)', breed:'Quarter Horse &middot; 9 yrs'},
+];
+function initials(name){return name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();}
+const PEOPLE_COLOR = {'Sarah Mitchell':'#0a4bb0','Jennifer Cole':'#1f9d5a','Marcus Reed':'#f2a53d','Diego Alvarez':'#1f9d5a','Priya Nair':'#7c6ff0'};
+function personAvatar(name,size){ const c=PEOPLE_COLOR[name]||'#5c6678'; return `<div class="avatar-ph ${size||''}" style="background:${c}">${initials(name)}</div>`; }
+
+const RECORD_TYPES = [
+  {id:'farrier', name:'Farrier', icon:I.horse, color:'#0a4bb0', count:12, last:'Sep 3'},
+  {id:'treatment', name:'Treatment', icon:I.bug, color:'#e5484d', count:6, last:'Aug 27'},
+  {id:'vaccination', name:'Vaccination', icon:I.shield, color:'#1f9d5a', count:10, last:'Jul 12'},
+  {id:'breeding', name:'Breeding', icon:I.paw, color:'#7c6ff0', count:2, last:'May 2'},
+  {id:'dentist', name:'Dentist', icon:I.tooth, color:'#f2a53d', count:6, last:'Jun 18'},
+  {id:'vet', name:'Vet', icon:I.vet, color:'#1f8bef', count:8, last:'Aug 2'},
+  {id:'deworming', name:'Deworming', icon:I.drop, color:'#0891b2', count:5, last:'Jul 30'},
+];
+
+/* ============================================================
+   FLOW DIRECTORY DATA (main flows + sub-flows), drives the left rail
+   ============================================================ */
+const FLOWS = [
+  {id:'onboarding', name:'Onboarding & Login', desc:'Splash, carousel, sign in', start:'splash',
+    subs:[{n:'Splash',v:'splash'},{n:'Onboarding',v:'onb1'},{n:'Sign up / Log in',v:'auth-start'},{n:'Verify code',v:'auth-otp'},{n:'Forgot password',v:'auth-forgot'}]},
+  {id:'paywall', name:'Subscription Paywall', desc:'Plan picker after sign up', start:'paywall',
+    subs:[{n:'Select plan',v:'paywall'},{n:'Congrats (Pro)',v:'paywall-congrats'}]},
+  {id:'home', name:'Home', desc:'Dashboard & overview', start:'home',
+    subs:[{n:'Dashboard',v:'home'},{n:'Notifications',v:'notifications'},{n:'Global search',v:'search'}]},
+  {id:'horses', name:'Horses', desc:'Client horse profiles', start:'horses',
+    subs:[{n:'Horse list',v:'horses'},{n:'Horse profile',v:'horse-dakota'},{n:'Add horse',v:'create-horse'},{n:'AI auto-fill',v:'create-horse-ai'}]},
+  {id:'records', name:'My Records', desc:'Health & care logs', start:'records',
+    subs:[{n:'All records',v:'records'},{n:'Select record type',v:'pick-record-type'},{n:'Farrier',v:'rt-farrier'},{n:'Treatment',v:'rt-treatment'},{n:'Vaccination',v:'rt-vaccination'},{n:'Deworming',v:'rt-deworming'},{n:'Breeding',v:'rt-breeding'},{n:'Dentist',v:'rt-dentist'},{n:'Vet',v:'rt-vet'},{n:'Add farrier record',v:'add-farrier'},{n:'Add deworming record',v:'add-deworming'}]},
+  {id:'calendar', name:'Calendar', desc:'Appointments & scheduling', start:'calendar',
+    subs:[{n:'Calendar',v:'calendar'},{n:'Appointment detail',v:'appt-detail'}]},
+  {id:'profile', name:'Profile & Settings', desc:'Account, team, billing', start:'profile',
+    subs:[{n:'Profile menu',v:'profile'},{n:"User's team",v:'profile-team'},{n:'Manage notifications',v:'profile-notif'},{n:'Calendar sync',v:'profile-calsync'},{n:'Business details',v:'profile-business'},{n:'Subscription',v:'profile-sub'},{n:'Legal & compliance',v:'profile-legal'}]},
+  {id:'business', name:'Care Professional Tools', desc:'Products, inventory, billing', start:'biz-products',
+    subs:[{n:'Products',v:'biz-products'},{n:'Inventory',v:'biz-inventory'},{n:'Invoices & admin',v:'biz-invoices'},{n:'Connect QuickBooks',v:'biz-quickbooks'}]},
+];
+
+/* ============================================================
+   VIEW TEMPLATES
+   ============================================================ */
+const rt = (id)=>RECORD_TYPES.find(r=>r.id===id);
+
+function statusbar(light){
+  return `<div class="statusbar ${light?'on-light':''}"><span>9:41</span><div class="icons"><svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><rect x="0" y="7" width="2.4" height="5" rx=".5"/><rect x="4" y="4.5" width="2.4" height="7.5" rx=".5"/><rect x="8" y="2" width="2.4" height="10" rx=".5"/><rect x="12" y="0" width="2.4" height="12" rx=".5"/></svg><svg width="15" height="11" viewBox="0 0 24 17" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6a15 15 0 0 1 20 0M6 10a9 9 0 0 1 12 0M10 14a4 4 0 0 1 4 0"/></svg><svg width="22" height="11" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="1" width="19" height="10" rx="2.5"/><rect x="3" y="3" width="14" height="6" rx="1.3" fill="currentColor" stroke="none"/><rect x="21" y="4" width="2" height="4" rx="1" fill="currentColor" stroke="none"/></svg></div></div>`;
+}
+function header(title, back, right){
+  return `<div class="app-header">${back?`<button class="iconbtn" onclick="${back}">${I.back}</button>`:''}<h2>${title}</h2>${right||''}</div>`;
+}
+function tabbar(active){
+  const tabs=[['home','Home',I.home,'home'],['horses','Horses',I.horse,'horses'],['records','My Records',I.doc,'records'],['calendar','Calendar',I.cal,'calendar'],['profile','Profile',I.user,'profile']];
+  return `<div class="tabbar">${tabs.map(t=>`<button class="tabbtn ${active===t[0]?'active':''}" onclick="go('${t[3]}')">${t[2]}<span>${t[1]}</span></button>`).join('')}</div>`;
+}
+function heroSearch(withBack){
+  return `<div class="blue-hero">
+    <div class="row" style="margin-bottom:10px;">
+      ${withBack?`<button class="iconbtn" style="background:rgba(255,255,255,.18);border-color:transparent;color:#fff;" onclick="back()">${I.back}</button>`:''}
+      <div class="searchbar" onclick="go('search')" style="flex:1;">${I.search}<input placeholder="Search horses, records, service..." readonly></div>
+      <div class="pillicon" onclick="go('profile')">${I.headset}</div>
+      <div class="pillicon" onclick="go('notifications')">${I.bell}<span class="dot-badge"></span></div>
+    </div>
+  </div>`;
+}
+function horseCards(){
+  return HORSES.map(h=>`<div class="horse-card" onclick="openHorse('${h.id}')"><div class="horse-thumb" style="background:${h.grad}">${I.horse}</div><div class="nm">${h.name}</div><div class="own">${h.owner}</div></div>`).join('');
+}
+function recTypeTiles(){
+  return RECORD_TYPES.map(r=>`<div class="tile" onclick="go('rt-${r.id}')"><div class="ic" style="background:${r.color}">${r.icon}</div><div class="tt"><div class="t1">${r.name}</div><div class="t2">${r.count} entries &middot; last ${r.last}</div></div><div class="chev">${I.chev}</div></div>`).join('');
+}
+
+const VIEWS = {};
+
+/* ---------- SPLASH ---------- */
+VIEWS.splash = {tab:null, crumb:'Splash screen', html:`
+  <div class="splash">
+    <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3C9 8 3 10 3 16c0 2 1.6 3 3 1.6C7.5 15.8 10 13 12 13s4.5 2.8 6 4.6c1.4 1.4 3 .4 3-1.6 0-6-6-8-9-13Z" fill="#0a4bb0"/></svg></div>
+    <div class="word">EQUINET</div>
+  </div>
+  <div style="position:absolute;bottom:26px;left:0;right:0;display:flex;justify-content:center;"><button class="linklike" style="color:#fff;" onclick="go('onb1')">Tap to continue →</button></div>
+`};
+
+/* ---------- ONBOARDING (3 slides) ---------- */
+function onbSlide(step,title,text,dots,illo,next,skipTo){
+  return `
+  <div class="onb-slide">
+    <div class="onb-illustration">${illo}</div>
+    <div class="onb-title">${title}</div>
+    <div class="onb-text">${text}</div>
+    <div class="onb-dots">${dots.map(d=>`<span class="${d?'on':''}"></span>`).join('')}</div>
+  </div>
+  <div class="onb-footer">
+    <button class="linklike" style="color:#fff;opacity:.85;" onclick="go('${skipTo}')">Skip</button>
+    <button class="btn ghost" style="width:auto;background:#fff;color:var(--brand-1);padding:10px 22px;" onclick="go('${next}')">Next →</button>
+  </div>`;
+}
+VIEWS.onb1 = {tab:null, crumb:'Onboarding 1 of 3', html: onbSlide(1,'Horse Care Made Easy','Get started by adding your horse and setting up appointments and health records.',[1,0,0],
+  `<div class="phonecard c1" style="top:60px;"><div class="ic2">${I.doc}</div>Add First Record</div><div class="phonecard c2"><div class="ic2">${I.cal}</div>Schedule Now</div>`,
+  'onb2','auth-start')};
+VIEWS.onb2 = {tab:null, crumb:'Onboarding 2 of 3', html: onbSlide(2,'Always Up to Date','Store all of your horses’ records, so you always have them on hand — no more paper folders.',[0,1,0],
+  `<div class="phonecard c1"><div class="ic2">${I.shield}</div>Vaccination due</div><div class="phonecard c2"><div class="ic2">${I.horse}</div>3 horses synced</div>`,
+  'onb3','auth-start')};
+VIEWS.onb3 = {tab:null, crumb:'Onboarding 3 of 3', html: onbSlide(3,'Built for Your Team','Invite farriers, vets and clients so everyone sees the same up-to-date record.',[0,0,1],
+  `<div class="phonecard c1"><div class="ic2">${I.team}</div>Team invited</div><div class="phonecard c2"><div class="ic2">${I.check}</div>Synced &amp; secure</div>`,
+  'auth-start','auth-start')};
+
+/* ---------- AUTH ---------- */
+VIEWS['auth-start']={tab:null, crumb:'Sign up / Log in', html:`
+  <div class="auth-top"><div class="kicker">${I.horse}</div><h2>Welcome!</h2><p>Sign in to your account or create a new one to get started.</p></div>
+  <div class="view-scroll"><div class="section stack">
+    <div class="field"><label>Phone number</label>
+      <div class="row" style="gap:8px;"><select style="width:84px;flex:none;"><option>US +1</option><option>UK +44</option><option>NL +31</option></select><input placeholder="(555) 000-0000"></div>
+    </div>
+    <button class="btn primary" onclick="go('auth-otp')">Continue &rarr;</button>
+    <div class="divider-or">OR</div>
+    <button class="btn ghost" onclick="go('auth-email')">Continue with email</button>
+    <button class="btn social" onclick="go('auth-otp')"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M16.4 1c.1 1.1-.3 2.2-1 3-.7.8-1.9 1.5-3 1.4-.1-1 .4-2.2 1-3C14.2 1.6 15.3 1 16.4 1Zm4.3 16.6c-.6 1.3-1.3 2.5-2.2 3.7-1.2 1.6-2.5 3.2-4.3 3.2-1.7 0-2.2-1-4.1-1s-2.5 1-4.1 1c-1.7 0-3.1-1.6-4.3-3.2C-.4 17.9-.9 13 1 9.9c1.3-2.2 3.5-3.5 5.5-3.5 1.7 0 2.9 1.1 4.1 1.1 1.1 0 2.6-1.2 4.6-1.1 1.7.1 3.5 1 4.6 2.5-4.1 2.4-3.4 8.1.9 8.7Z"/></svg>Sign in with Apple</button>
+    <button class="btn social google" onclick="go('auth-otp')"><svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h6.5c-.3 1.5-1.2 2.7-2.5 3.5v2.9h4c2.3-2.2 3.5-5.3 3.5-8.5Z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-4-2.9c-1.1.7-2.4 1.1-3.9 1.1-3 0-5.5-2-6.4-4.7H1.4v3C3.4 21.6 7.4 24 12 24Z"/><path fill="#FBBC05" d="M5.6 14.6c-.3-.8-.4-1.6-.4-2.5s.1-1.7.4-2.5v-3H1.4C.5 8.2 0 10 0 12s.5 3.8 1.4 5.4l4.2-2.8Z"/><path fill="#EA4335" d="M12 4.7c1.7 0 3.2.6 4.4 1.7l3.5-3.5C17.9 1.1 15.2 0 12 0 7.4 0 3.4 2.4 1.4 6.1l4.2 3C6.5 6.6 9 4.7 12 4.7Z"/></svg>Sign in with Google</button>
+    <p class="legalnote">By using this app, you agree to the <b>Terms &amp; Conditions</b> and <b>Privacy Policy</b>.</p>
+  </div></div>
+`};
+VIEWS['auth-email']={tab:null, crumb:'Continue with email', html:`
+  ${header('Welcome!','history.back(),0','')}
+  <div class="view-scroll"><div class="section stack">
+    <p class="muted" style="font-size:13px;">Sign in to your account or create a new one to get started.</p>
+    <div class="field"><label>Email</label><input placeholder="you@example.com" value="sarah.mitchell@email.com"></div>
+    <div class="field"><label>Password</label><input type="password" value="••••••••"></div>
+    <button class="linklike" style="text-align:right;" onclick="go('auth-forgot')">Forgot your password?</button>
+    <button class="btn primary" onclick="go('auth-otp')">Continue</button>
+    <div class="hairline"></div>
+    <button class="btn ghost" onclick="go('auth-start')">Use phone number instead</button>
+  </div></div>
+`};
+VIEWS['auth-forgot']={tab:null, crumb:'Forgot password', html:`
+  ${header('Forgot Password','history.back(),0','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="kicker" style="background:var(--brand-3);color:var(--brand-2);width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;">${I.shield}</div>
+    <p class="muted" style="font-size:13px;">We'll send you an email with a link to reset your password.</p>
+    <div class="field"><label>Email</label><input value="sarah.mitchell@email.com"></div>
+    <button class="btn primary" onclick="go('auth-forgot-sent')">Send reset link</button>
+  </div></div>
+`};
+VIEWS['auth-forgot-sent']={tab:null, crumb:'Check your email', html:`
+  <div class="empty" style="justify-content:center;flex:1;">
+    <div class="ic" style="width:64px;height:64px;">${I.cloud}</div>
+    <h4>Almost done…</h4>
+    <p>If you have an account with us, you'll receive a link to reset your password shortly.</p>
+    <button class="btn primary" style="width:auto;padding:12px 26px;margin-top:8px;" onclick="go('auth-start')">Back to sign in</button>
+  </div>
+`};
+VIEWS['auth-otp']={tab:null, crumb:'Verify code', html:`
+  <div class="auth-top"><div class="kicker">${I.shield}</div><h2>Verification Code</h2><p>Enter the 6-digit code we sent to <b>+1 (438) 600-7070</b>.</p></div>
+  <div class="section stack">
+    <div class="otp-row">${[1,2,3,4,5,6].map(()=>`<input maxlength="1" value="${Math.floor(Math.random()*9)+1}">`).join('')}</div>
+    <p class="muted" style="font-size:12px;">Resend code in <b>00:28</b></p>
+    <button class="btn primary" onclick="go('paywall')">Verify &amp; Continue</button>
+  </div>
+`};
+
+/* ---------- PAYWALL ---------- */
+function planCard(name,price,per,desc,features,popular){
+  return `<div class="plancard ${popular?'popular':''}">${popular?'<div class="badge">MOST POPULAR</div>':''}
+    <div class="row between"><b style="font-size:15px;">${name}</b><div class="price">${price}<span>${per}</span></div></div>
+    <div class="plandesc">${desc}</div>
+    <ul>${features.map(f=>`<li>${I.check}${f}</li>`).join('')}</ul>
+  </div>`;
+}
+VIEWS.paywall={tab:null, crumb:'Select a plan', html:`
+  ${header('Select Plan','go(\'auth-otp\')','')}
+  <div class="view-scroll"><div class="section stack">
+    ${planCard('Core','Free','','The vital tools to try EQUINET with one horse.',['Own 1 horse and invite others','Managing unlimited records per horse'])}
+    ${planCard('Care','$12.99','/mo','For those responsible for more than one horse.',['Own up to 5 horses and invite others','Look after endless horses as a carer','Spending tracking &amp; offline notes'])}
+    ${planCard('Pro','$19.99','/mo','For those managing on behalf of others.',['Own up to 10 horses and invite others','Unlimited invoices (QuickBooks &amp; Xero)','Clients confirm/decline appointments','Automatic reminders (SMS, Push, Email)'],true)}
+    ${planCard('Business','$39.99','/mo','For teams, vets, or larger stables.',['9 licenses/month included','Teamwork &amp; grow for $19.99/extra seat','Priority support &amp; 1-on-1 onboarding'])}
+    <button class="btn primary" onclick="go('paywall-congrats')">Start 30 days free trial →</button>
+    <button class="linklike" onclick="go('home')">Continue with Core (free)</button>
+  </div></div>
+`};
+VIEWS['paywall-congrats']={tab:null, crumb:'Congratulations', html:`
+  <div class="empty" style="justify-content:center;flex:1;background:linear-gradient(180deg,var(--brand-3),var(--surface));">
+    <div class="ic" style="width:64px;height:64px;background:var(--gold);color:#fff;">${I.sparkle}</div>
+    <h4 style="font-size:17px;">You're on Pro! 🎉</h4>
+    <p>Your 30-day free trial has started. Manage clients, invoices and reminders — all in one place.</p>
+    <button class="btn primary" style="width:auto;padding:12px 26px;margin-top:8px;" onclick="go('home')">Go to my dashboard</button>
+  </div>
+`};
+
+/* ---------- HOME ---------- */
+VIEWS.home={tab:'home', crumb:'Home dashboard', html:`
+  <div class="view-scroll">
+    ${heroSearch(false)}
+    <div class="section">
+      <div class="section-head"><h3>Horses</h3><a onclick="go('horses')">See all (${HORSES.length})</a></div>
+      <div class="hscroll">${horseCards()}<div class="horse-card add" onclick="go('create-horse')">${I.plus}Add Horse</div></div>
+    </div>
+    <div class="section" style="padding-top:0;">
+      <div class="section-head"><h3>Finance overview</h3><a onclick="go('biz-invoices')">See all</a></div>
+      <div class="card stack">
+        <div class="row between"><span style="font-size:12.5px;">Overdue bill <span class="tag gold">1</span></span><b style="font-size:13px;">$35.00</b></div>
+        <div class="row between"><span style="font-size:12.5px;">Awaiting payment <span class="tag blue">2</span></span><b style="font-size:13px;">$275.00</b></div>
+        <div class="row between"><span style="font-size:12.5px;">Records to invoice</span><b style="font-size:13px;">5</b></div>
+      </div>
+    </div>
+    <div class="section" style="padding-top:0;">
+      <div class="section-head"><h3>My Records</h3><a onclick="go('records')">See all</a></div>
+      <div class="grid2">
+        <div class="tile" style="cursor:pointer;" onclick="go('rt-dentist')"><div class="ic" style="background:${rt('dentist').color}">${rt('dentist').icon}</div><div class="tt"><div class="t1">Dentist</div><div class="t2">6 events</div></div></div>
+        <div class="tile" style="cursor:pointer;" onclick="go('rt-vet')"><div class="ic" style="background:${rt('vet').color}">${rt('vet').icon}</div><div class="tt"><div class="t1">Vet</div><div class="t2">8 events</div></div></div>
+      </div>
+    </div>
+    <div class="section" style="padding-top:0;">
+      <div class="section-head"><h3>Appointments</h3><a onclick="go('calendar')">See all</a></div>
+      <div class="stack">
+        <div class="tile" onclick="go('appt-detail')"><div class="ic" style="background:var(--brand-2)">${I.cal}</div><div class="tt"><div class="t1">Service appointment <span class="tag blue">Today</span></div><div class="t2">09:45 AM &middot; 1125 Tates Creek Rd.</div></div><button class="iconbtn" style="width:28px;height:28px;" onclick="event.stopPropagation();go('appt-detail')">${I.edit}</button></div>
+        <div class="tile" onclick="go('appt-detail')"><div class="ic" style="background:var(--gold)">${I.cal}</div><div class="tt"><div class="t1">Farrier visit <span class="tag gold">2 days</span></div><div class="t2">12:45 PM &middot; Cole Stables</div></div><button class="iconbtn" style="width:28px;height:28px;" onclick="event.stopPropagation();go('appt-detail')">${I.edit}</button></div>
+      </div>
+    </div>
+    <div class="section" style="padding-top:0;">
+      <div class="section-head"><h3>Care Professional Services</h3></div>
+      <p class="muted" style="font-size:11.5px;margin-bottom:10px;">Create teams, invoice clients, use the products you manage and check inventory.</p>
+      <div class="grid2">
+        <div class="tile" onclick="go('biz-products')"><div class="ic" style="background:#0a4bb0">${I.bag}</div><div class="tt"><div class="t1">Products</div><div class="t2">Product list</div></div></div>
+        <div class="tile" onclick="go('biz-inventory')"><div class="ic" style="background:#1f9d5a">${I.box}</div><div class="tt"><div class="t1">Inventory</div><div class="t2">All items</div></div></div>
+        <div class="tile" onclick="go('biz-invoices')"><div class="ic" style="background:#f2a53d">${I.invoice}</div><div class="tt"><div class="t1">Invoices</div><div class="t2">Manage billing</div></div></div>
+        <div class="tile" onclick="go('profile-team')"><div class="ic" style="background:#7c6ff0">${I.team}</div><div class="tt"><div class="t1">Teams</div><div class="t2">Add your team</div></div></div>
+      </div>
+    </div>
+  </div>
+  ${tabbar('home')}
+`};
+
+/* ---------- NOTIFICATIONS ---------- */
+VIEWS.notifications={tab:null, crumb:'Notifications', html:`
+  ${header('Notifications','back()','')}
+  <div class="view-scroll"><div class="section stack">
+    ${[
+      ['Vaccination due soon','Dakota is due for a flu booster on Sep 24.',I.shield,'#1f9d5a'],
+      ['Appointment confirmed','Marcus Reed confirmed the farrier visit for Toni.',I.cal,'var(--brand-2)'],
+      ['Invoice paid','Jennifer Cole paid invoice #1042 ($120.00).',I.invoice,'#f2a53d'],
+      ['New record added','A dentist record was added to Olivia’s profile.',I.tooth,'#7c6ff0'],
+    ].map(n=>`<div class="tile"><div class="ic" style="background:${n[3]}">${n[2]}</div><div class="tt"><div class="t1">${n[0]}</div><div class="t2">${n[1]}</div></div></div>`).join('')}
+  </div></div>
+`};
+
+/* ---------- GLOBAL SEARCH ---------- */
+VIEWS.search={tab:null, crumb:'Global search', html:`
+  <div class="blue-hero"><div class="row"><button class="iconbtn" style="background:rgba(255,255,255,.18);border-color:transparent;color:#fff;" onclick="back()">${I.back}</button>
+  <div class="searchbar" style="flex:1;">${I.search}<input placeholder="Search horses, records, service..." autofocus></div></div></div>
+  <div class="view-scroll searchresults">
+    <div class="section-head" style="margin-top:12px;"><h3>Recent</h3></div>
+    <div style="margin-bottom:6px;"><span class="recentchip">Dakota</span><span class="recentchip">Farrier near me</span><span class="recentchip">Vaccination schedule</span></div>
+    <div class="section-head"><h3>Horses</h3></div>
+    <div class="stack" style="margin-bottom:12px;">${HORSES.map(h=>`<div class="tile" onclick="openHorse('${h.id}')"><div class="horse-avatar" style="background:${h.grad}">${I.horse}</div><div class="tt"><div class="t1">${h.name}</div><div class="t2">${h.owner}</div></div></div>`).join('')}</div>
+    <div class="section-head"><h3>Record types</h3></div>
+    <div class="stack">${RECORD_TYPES.slice(0,3).map(r=>`<div class="tile" onclick="go('rt-${r.id}')"><div class="ic" style="background:${r.color}">${r.icon}</div><div class="tt"><div class="t1">${r.name} records</div></div></div>`).join('')}</div>
+  </div>
+`};
+
+/* ---------- HORSES LIST ---------- */
+VIEWS.horses={tab:'horses', crumb:'Horses', html:`
+  ${header('Horses',null,`<button class="iconbtn" onclick="go('create-horse')">${I.plus}</button>`)}
+  <div class="view-scroll"><div class="section stack">
+    ${HORSES.map(h=>`<div class="tile" style="height:auto;" onclick="openHorse('${h.id}')"><div class="horse-avatar" style="background:${h.grad}">${I.horse}</div><div class="tt"><div class="t1">${h.name}</div><div class="t2">${h.breed} &middot; owner ${h.owner}</div></div><div class="chev">${I.chev}</div></div>`).join('')}
+  </div></div>
+  ${tabbar('horses')}
+`};
+
+/* ---------- HORSE DETAIL ---------- */
+function horseDetail(h){
+  return `${header(h.name,'go(\'horses\')',`<button class="iconbtn">${I.edit}</button>`)}
+  <div class="view-scroll">
+    <div class="section" style="padding-top:0;">
+      <div class="horse-hero" style="background:${h.grad}">${I.horse}</div>
+      <div class="row between mt10"><div><h3 style="font-size:16px;">${h.name}</h3><div class="muted" style="font-size:12px;">${h.breed}</div></div><span class="tag blue">Owner: ${h.owner.split(' ')[0]}</span></div>
+    </div>
+    <div class="section" style="padding-top:0;">
+      <div class="section-head"><h3>Upcoming</h3></div>
+      <div class="tile"><div class="ic" style="background:var(--brand-2)">${I.cal}</div><div class="tt"><div class="t1">Farrier visit</div><div class="t2">Tomorrow &middot; 10:00 AM</div></div></div>
+    </div>
+    <div class="section" style="padding-top:0;">
+      <div class="section-head"><h3>Records</h3><a onclick="go('records')">See all</a></div>
+      <div class="grid2">${RECORD_TYPES.slice(0,4).map(r=>`<div class="tile" onclick="go('rt-${r.id}')"><div class="ic" style="background:${r.color}">${r.icon}</div><div class="tt"><div class="t1">${r.name}</div><div class="t2">${Math.max(1,r.count-8)} for ${h.name}</div></div></div>`).join('')}</div>
+    </div>
+  </div>`;
+}
+HORSES.forEach(h=>{ VIEWS['horse-'+h.id] = {tab:'horses', crumb:h.name+' profile', html: horseDetail(h)}; });
+
+/* ---------- CREATE HORSE ---------- */
+VIEWS['create-horse']={tab:'horses', crumb:'Add horse', html:`
+  ${header('Add Horse','back()','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="ai-banner" onclick="go('create-horse-ai')" style="cursor:pointer;">
+      <div class="ic">${I.sparkle}</div>
+      <div class="tt"><b>Try AI Auto-Fill</b><div>Scan a passport or vet paper and we'll fill this in for you</div></div>
+      <div class="chev">${I.chev}</div>
+    </div>
+    <div class="field"><label>Horse name</label><input placeholder="e.g. Dakota"></div>
+    <div class="field"><label>Breed</label><input placeholder="e.g. Friesian"></div>
+    <div class="field"><label>Date of birth</label><input placeholder="MM / DD / YYYY"></div>
+    <div class="field"><label>Owner</label><input placeholder="Search or invite an owner"></div>
+    <button class="btn primary" onclick="go('horses')">Save horse</button>
+  </div></div>
+`};
+VIEWS['create-horse-ai']={tab:'horses', crumb:'AI Auto-Fill', html:`
+  ${header('AI Auto-Fill','go(\'create-horse\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="empty" style="padding:20px 10px;">
+      <div class="ic" style="background:var(--purple);color:#fff;">${I.sparkle}</div>
+      <h4>Scan a document</h4>
+      <p>Take a photo of a passport, vet record or breeder paper — EQUINET AI reads the details for you.</p>
+    </div>
+    <button class="btn primary" onclick="go('create-horse-ai-result')">📷 Simulate scan</button>
+    <button class="btn ghost" onclick="go('create-horse')">Fill in manually instead</button>
+  </div></div>
+`};
+VIEWS['create-horse-ai-result']={tab:'horses', crumb:'AI result', html:`
+  ${header('Review details','go(\'create-horse-ai\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="tag green" style="align-self:flex-start;">${I.check} Auto-filled from document</div>
+    <div class="field"><label>Horse name</label><input value="Bracken"></div>
+    <div class="field"><label>Breed</label><input value="Irish Sport Horse"></div>
+    <div class="field"><label>Date of birth</label><input value="04 / 12 / 2019"></div>
+    <div class="field"><label>Microchip #</label><input value="985 141 000 682 331"></div>
+    <button class="btn primary" onclick="go('horses')">Looks good, save horse</button>
+  </div></div>
+`};
+
+/* ---------- RECORDS HUB ---------- */
+VIEWS.records={tab:'records', crumb:'My Records', html:`
+  ${header('My Records',null,'')}
+  <div class="view-scroll"><div class="section stack">
+    ${recTypeTiles()}
+    <button class="btn ghost" onclick="go('pick-record-type')">${I.plus} Log a new record</button>
+  </div></div>
+  ${tabbar('records')}
+`};
+
+/* ---------- RECORD TYPE DETAIL (generic) ---------- */
+function recordTypeView(r){
+  const entries = [
+    {d:'27',m:'Aug',t:r.name+' visit — Dakota',s:'Jennifer Cole &middot; routine'},
+    {d:'14',m:'Jul',t:r.name+' visit — Toni',s:'Marcus Reed &middot; follow-up'},
+    {d:'02',m:'Jun',t:r.name+' visit — Olivia',s:'Sarah Mitchell &middot; routine'},
+  ];
+  return `${header(r.name+' Records','go(\'records\')',`<button class="iconbtn" onclick="go('add-${r.id}')">${I.plus}</button>`)}
+  <div class="view-scroll">
+    <div class="section" style="padding-bottom:0;">
+      <div class="card row between" style="margin-bottom:4px;">
+        <div><div style="font-size:20px;font-weight:800;font-family:var(--font-display);">${r.count}</div><div class="muted" style="font-size:11px;">total entries</div></div>
+        <div style="text-align:right;"><div style="font-size:13px;font-weight:700;">${r.last}</div><div class="muted" style="font-size:11px;">last logged</div></div>
+      </div>
+    </div>
+    <div class="section">
+      ${entries.map(e=>`<div class="rec-item"><div class="dt"><div class="d">${e.d}</div><div class="m">${e.m}</div></div><div class="bd"><div class="t1">${e.t}</div><div class="t2">${e.s}</div></div><div class="chev">${I.chev}</div></div>`).join('')}
+    </div>
+  </div>`;
+}
+RECORD_TYPES.forEach(r=>{ VIEWS['rt-'+r.id] = {tab:'records', crumb:r.name+' records', html: recordTypeView(r)}; });
+
+/* ---------- ADD FARRIER RECORD (the deep sub-flow from the file) ---------- */
+VIEWS['add-farrier']={tab:'records', crumb:'Add farrier record — select nails', html:`
+  ${header('Select Nails','go(\'rt-farrier\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <p class="muted" style="font-size:12px;">Log the horseshoe nails used for this farrier session.</p>
+    <div class="section-head" style="padding:0;"><h3 style="font-size:12.5px;">Frequently used</h3></div>
+    <div class="pick-row on"><span>Liberty City Head</span><div class="radio"></div></div>
+    <div class="section-head" style="padding:0;"><h3 style="font-size:12.5px;">All nails</h3></div>
+    ${['Blurton','Centre Fit','Coxton','Delta','Diamond','Double','Easyshoe','EDSS'].map((n,i)=>`<div class="pick-row ${i===0?'':''}" onclick="pickRow(this)"><span>${n}</span><div class="radio"></div></div>`).join('')}
+    <button class="btn primary" onclick="go('add-farrier-anvil')">Next: choose anvil brand →</button>
+  </div></div>
+`};
+VIEWS['add-farrier-anvil']={tab:'records', crumb:'Add farrier record — anvil brand', html:`
+  ${header('Anvil Brand','go(\'add-farrier\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="chip-scroll">${['Capewell','Delta','Kahn Forge','Liberty','March','Mustad','Vector'].map((n,i)=>`<div class="chipsel ${i===3?'on':''}" onclick="chipSel(this)">${n}</div>`).join('')}</div>
+    <div class="section-head" style="padding:0;margin-top:6px;"><h3 style="font-size:12.5px;">Head size</h3></div>
+    <div class="grid2">${[0,1,3,4].map(n=>`<div class="tile" style="justify-content:center;" onclick="pickTile(this)"><b>${n}</b></div>`).join('')}</div>
+    <button class="btn primary" onclick="go('add-farrier-review')">Next: review &amp; save →</button>
+  </div></div>
+`};
+VIEWS['add-farrier-review']={tab:'records', crumb:'Add farrier record — review', html:`
+  ${header('Review Record','go(\'add-farrier-anvil\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="card stack">
+      <div class="row between"><span class="muted" style="font-size:12px;">Horse</span><b style="font-size:13px;">Dakota</b></div>
+      <div class="row between"><span class="muted" style="font-size:12px;">Nails</span><b style="font-size:13px;">Liberty City Head</b></div>
+      <div class="row between"><span class="muted" style="font-size:12px;">Anvil brand</span><b style="font-size:13px;">Liberty</b></div>
+      <div class="row between"><span class="muted" style="font-size:12px;">Head size</span><b style="font-size:13px;">1</b></div>
+      <div class="row between"><span class="muted" style="font-size:12px;">Date</span><b style="font-size:13px;">Today</b></div>
+    </div>
+    <div class="field"><label>Notes</label><input placeholder="Optional notes for this visit"></div>
+    <button class="btn primary" onclick="go('rt-farrier')">Save record</button>
+  </div></div>
+`};
+
+/* ---------- SELECT RECORD TYPE (universal "+" entry point, matches Figma's shared picker) ---------- */
+VIEWS['pick-record-type']={tab:'records', crumb:'Select record type', html:`
+  ${header('Select Record Type','go(\'records\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <p class="muted" style="font-size:12px;">Choose the type of record you want to add for Dakota.</p>
+    ${RECORD_TYPES.map(r=>`<div class="pick-row" onclick="go('add-${r.id}')"><span class="row" style="gap:10px;"><span style="background:${r.color};width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;flex:none;">${r.icon}</span>${r.name}</span><div class="chev">${I.chev}</div></div>`).join('')}
+  </div></div>
+`};
+
+/* ---------- ADD DEWORMING RECORD (2-step: pick product, then review/save) ---------- */
+VIEWS['add-deworming']={tab:'records', crumb:'Add deworming record — select product', html:`
+  ${header('Select Record Type','go(\'rt-deworming\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <p class="muted" style="font-size:12px;">Choose the type of dewormer you want to add for Dakota.</p>
+    ${['Banminth','Bimectin','Equest','Equest Promax','Equinmax','Other'].map((n,i)=>`<div class="pick-row ${i===2?'on':''}" onclick="pickRow(this)"><span>${n}</span><div class="radio"></div></div>`).join('')}
+    <button class="btn primary" onclick="go('add-deworming-review')">Select →</button>
+  </div></div>
+`};
+VIEWS['add-deworming-review']={tab:'records', crumb:'Add deworming record — details', html:`
+  ${header('Add Record','go(\'add-deworming\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="card stack">
+      <div class="section-head" style="padding:0;"><h3 style="font-size:12.5px;">Service Details</h3></div>
+      <div class="field"><label>Record type</label><input value="Equest"></div>
+      <div class="field"><label>Currencies</label><input value="USD"></div>
+      <div class="field"><label>Estimated cost</label><input placeholder="$"></div>
+      <div class="field"><label>Date of record</label><input value="Today"></div>
+    </div>
+    <div class="card stack">
+      <div class="section-head" style="padding:0;"><h3 style="font-size:12.5px;">Notes &amp; Documentation</h3></div>
+      <div class="field"><label>Note</label><input placeholder="Write your note here..."></div>
+      <div class="field"><label>Private notes <span class="muted" style="font-weight:400;">only visible to you</span></label><input placeholder="Write your private note here..."></div>
+    </div>
+    <button class="btn primary" onclick="go('rt-deworming')">Save</button>
+  </div></div>
+`};
+
+/* ---------- ADD RECORD (generic single-step form, used by Treatment / Vaccination / Breeding / Dentist / Vet) ---------- */
+function addRecordView(r){
+  return `${header('Add Record','go(\'rt-'+r.id+'\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="card stack">
+      <div class="section-head" style="padding:0;"><h3 style="font-size:12.5px;">${r.name} Details</h3></div>
+      <div class="field"><label>Horse</label><input value="Dakota"></div>
+      <div class="field"><label>Record name</label><input placeholder="e.g. Routine ${r.name.toLowerCase()} visit"></div>
+      <div class="field"><label>Date of record</label><input value="Today"></div>
+      <div class="field"><label>Estimated cost</label><input placeholder="$"></div>
+    </div>
+    <div class="card stack">
+      <div class="section-head" style="padding:0;"><h3 style="font-size:12.5px;">Notes &amp; Documentation</h3></div>
+      <div class="field"><label>Note</label><input placeholder="Write your note here..."></div>
+      <div class="field"><label>Photos</label><input placeholder="Click to upload"></div>
+    </div>
+    <button class="btn primary" onclick="go('rt-${r.id}')">Save record</button>
+  </div></div>`;
+}
+['treatment','vaccination','breeding','dentist','vet'].forEach(id=>{ VIEWS['add-'+id] = {tab:'records', crumb:'Add '+id+' record', html: addRecordView(rt(id))}; });
+
+/* ---------- CALENDAR ---------- */
+VIEWS.calendar={tab:'calendar', crumb:'Calendar', html:`
+  ${header('Calendar',null,`<button class="iconbtn" onclick="go('appt-new')">${I.plus}</button>`)}
+  <div class="cal-strip">${['Mon 15','Tue 16','Wed 17','Thu 18','Fri 19','Sat 20','Sun 21'].map((d,i)=>{const [wd,dn]=d.split(' ');return `<div class="cal-day ${i===3?'on':''}"><div class="wd">${wd}</div><div class="dn">${dn}</div></div>`}).join('')}</div>
+  <div class="view-scroll"><div class="section stack">
+    <div class="tile" onclick="go('appt-detail')"><div class="ic" style="background:var(--brand-2)">${I.cal}</div><div class="tt"><div class="t1">Service appointment</div><div class="t2">09:45 AM &middot; Dakota &middot; 1125 Tates Creek Rd.</div></div></div>
+    <div class="tile" onclick="go('appt-detail')"><div class="ic" style="background:var(--gold)">${I.horse}</div><div class="tt"><div class="t1">Farrier visit</div><div class="t2">12:45 PM &middot; Toni &middot; Reed Stables</div></div></div>
+    <div class="tile" onclick="go('appt-detail')"><div class="ic" style="background:#1f9d5a">${I.vet}</div><div class="tt"><div class="t1">Vet check-up</div><div class="t2">3:30 PM &middot; Olivia &middot; Mitchell Ranch</div></div></div>
+  </div></div>
+  ${tabbar('calendar')}
+`};
+VIEWS['appt-detail']={tab:'calendar', crumb:'Appointment detail', html:`
+  ${header('Appointment','back()',`<button class="iconbtn">${I.edit}</button>`)}
+  <div class="view-scroll"><div class="section stack">
+    <span class="tag blue" style="align-self:flex-start;">Confirmed</span>
+    <h3 style="font-size:17px;">Service appointment</h3>
+    <div class="card stack">
+      <div class="row"><div class="ic" style="background:var(--brand-2);width:34px;height:34px;border-radius:10px;">${I.cal}</div><div><div style="font-size:13px;font-weight:700;">Thu 18 Sep &middot; 09:45 AM</div><div class="muted" style="font-size:11.5px;">45 min</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--gold);width:34px;height:34px;border-radius:10px;">${I.horse}</div><div><div style="font-size:13px;font-weight:700;">Dakota</div><div class="muted" style="font-size:11.5px;">Jennifer Cole</div></div></div>
+      <div class="row"><div class="ic" style="background:#1f9d5a;width:34px;height:34px;border-radius:10px;">${I.flag}</div><div><div style="font-size:13px;font-weight:700;">1125 Tates Creek Rd.</div><div class="muted" style="font-size:11.5px;">Lexington, KY</div></div></div>
+    </div>
+    <button class="btn ghost">Reschedule</button>
+    <button class="btn" style="background:#fdeceb;color:var(--danger);">Cancel appointment</button>
+  </div></div>
+`};
+VIEWS['appt-new']={tab:'calendar', crumb:'New appointment', html:`
+  ${header('New Appointment','go(\'calendar\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="field"><label>Horse</label><select><option>Dakota</option><option>Toni</option><option>Olivia</option></select></div>
+    <div class="field"><label>Type</label><select><option>Farrier visit</option><option>Vet check-up</option><option>Dentist</option></select></div>
+    <div class="field"><label>Date &amp; time</label><input placeholder="Thu 18 Sep, 09:45 AM"></div>
+    <div class="field"><label>Location</label><input placeholder="1125 Tates Creek Rd."></div>
+    <button class="btn primary" onclick="go('calendar')">Schedule appointment</button>
+  </div></div>
+`};
+
+/* ---------- PROFILE ---------- */
+VIEWS.profile={tab:'profile', crumb:'Profile & Setting', html:`
+  <div class="view-scroll">
+    <div class="section">
+      <h2 style="font-size:20px;">Profile &amp; Setting</h2>
+      <p class="muted" style="font-size:12.5px;margin-top:2px;">Set your information, notifications, and more.</p>
+      <div class="card row mt14" style="background:linear-gradient(120deg,var(--brand-3),var(--surface));cursor:pointer;" onclick="go('profile-account')">
+        ${personAvatar('Sarah Mitchell')}
+        <div class="tt"><div class="row" style="gap:6px;"><b style="font-size:14px;">Sarah Mitchell</b><span class="badge-pro">PRO</span></div><div class="t2">${I.team===''?'':''}Personal Team</div></div>
+        <div class="chev">${I.chev}</div>
+      </div>
+    </div>
+    <div class="section" style="padding-top:0;">
+      <div class="section-head"><h3>Account &amp; Preferences</h3></div>
+      <div class="stack">
+        <div class="tile" onclick="go('profile-notif')"><div class="ic" style="background:var(--brand-2)">${I.bell}</div><div class="tt"><div class="t1">Manage Notifications</div></div><div class="chev">${I.chev}</div></div>
+        <div class="tile" onclick="go('biz-invoices')"><div class="ic" style="background:#1f9d5a">${I.invoice}</div><div class="tt"><div class="t1">Invoicing and Administration</div></div><div class="chev">${I.chev}</div></div>
+        <div class="tile" onclick="go('profile-calsync')"><div class="ic" style="background:#f2a53d">${I.cal}</div><div class="tt"><div class="t1">Calendar Sync</div></div><div class="chev">${I.chev}</div></div>
+        <div class="tile" onclick="go('profile-business')"><div class="ic" style="background:#0a4bb0">${I.bizcase}</div><div class="tt"><div class="t1">Business Details</div></div><div class="chev">${I.chev}</div></div>
+        <div class="tile" onclick="go('profile-legal')"><div class="ic" style="background:#7c6ff0">${I.shield}</div><div class="tt"><div class="t1">Privacy Setting</div></div><div class="chev">${I.chev}</div></div>
+      </div>
+    </div>
+    <div class="section" style="padding-top:0;">
+      <div class="section-head"><h3>About &amp; Help</h3></div>
+      <div class="stack">
+        <div class="tile"><div class="ic" style="background:var(--ink-faint)">${I.cloud}</div><div class="tt"><div class="t1">What is EQUINET?</div></div><div class="chev">${I.chev}</div></div>
+        <div class="tile"><div class="ic" style="background:var(--ink-faint)">${I.help}</div><div class="tt"><div class="t1">Support &amp; FAQ</div></div><div class="chev">${I.chev}</div></div>
+        <div class="tile"><div class="ic" style="background:var(--ink-faint)">${I.headset}</div><div class="tt"><div class="t1">Contact Us</div></div><div class="chev">${I.chev}</div></div>
+      </div>
+    </div>
+    <div class="section" style="padding-top:0;">
+      <div class="section-head"><h3>Care Professional Services</h3></div>
+      <div class="grid2">
+        <div class="tile" onclick="go('profile-team')"><div class="ic" style="background:#7c6ff0">${I.team}</div><div class="tt"><div class="t1">User's Team</div></div></div>
+        <div class="tile" onclick="go('profile-sub')"><div class="ic" style="background:var(--gold)">${I.sparkle}</div><div class="tt"><div class="t1">Subscription</div></div></div>
+      </div>
+    </div>
+    <div class="section" style="padding-top:0;">
+      <div class="section-head"><h3>Legal &amp; Compliance</h3></div>
+      <div class="stack">
+        <div class="tile" onclick="go('profile-legal')"><div class="ic" style="background:var(--ink-faint)">${I.file}</div><div class="tt"><div class="t1">Terms of Use</div></div><div class="chev">${I.chev}</div></div>
+        <div class="tile" onclick="go('profile-legal')"><div class="ic" style="background:var(--ink-faint)">${I.shield}</div><div class="tt"><div class="t1">Privacy Policy</div></div><div class="chev">${I.chev}</div></div>
+        <div class="tile"><div class="ic" style="background:var(--ink-faint)">${I.bug}</div><div class="tt"><div class="t1">Send Issue Report</div></div><div class="chev">${I.chev}</div></div>
+      </div>
+    </div>
+    <div class="section" style="padding-top:0;"><button class="btn" style="background:#fdeceb;color:var(--danger);" onclick="go('splash')">Log out</button></div>
+  </div>
+  ${tabbar('profile')}
+`};
+VIEWS['profile-account']={tab:'profile', crumb:'My account', html:`
+  ${header('My Account','go(\'profile\')','')}
+  <div class="view-scroll"><div class="section stack" style="align-items:center;text-align:center;">
+    ${personAvatar('Sarah Mitchell','lg')}
+    <div class="row" style="gap:6px;"><b style="font-size:16px;">Sarah Mitchell</b><span class="badge-pro">PRO</span></div>
+    <div class="muted" style="font-size:12.5px;">Owner &middot; Personal Team</div>
+  </div>
+  <div class="section stack">
+    <div class="card stack">
+      <div class="field"><label>Full name</label><input value="Sarah Mitchell"></div>
+      <div class="field"><label>Email</label><input value="sarah@alvarezfarrier.com"></div>
+      <div class="field"><label>Phone</label><input value="+1 (208) 555-0110"></div>
+    </div>
+    <button class="btn ghost">Change password</button>
+    <button class="btn primary" onclick="go('profile')">Save</button>
+  </div></div>
+`};
+VIEWS['profile-notif']={tab:'profile', crumb:'Manage notifications', html:`
+  ${header('Manage Notifications','go(\'profile\')','')}
+  <div class="view-scroll"><div class="section stack">
+    ${[['Appointment reminders','SMS, push and email'],['Vaccination due dates','Push notification'],['Invoice &amp; payment updates','Email only'],['Team activity','In-app only']].map((n,i)=>`<div class="tile" style="cursor:default;"><div class="tt"><div class="t1">${n[0]}</div><div class="t2">${n[1]}</div></div><div class="switch ${i<3?'on':''}" onclick="this.classList.toggle('on')"></div></div>`).join('')}
+  </div></div>
+`};
+VIEWS['profile-calsync']={tab:'profile', crumb:'Calendar sync', html:`
+  ${header('Calendar Sync','go(\'profile\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="tile" style="cursor:default;"><div class="ic" style="background:#000">${I.cal}</div><div class="tt"><div class="t1">Apple Calendar</div><div class="t2">Connected</div></div><div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="tile" onclick="go('profile-calsync-error')"><div class="ic" style="background:#4285F4">${I.cal}</div><div class="tt"><div class="t1">Google Calendar</div><div class="t2" style="color:var(--danger);">Error while syncing &middot; tap to view</div></div><div class="chev">${I.chev}</div></div>
+    <div class="tile" style="cursor:default;"><div class="ic" style="background:#0078d4">${I.cal}</div><div class="tt"><div class="t1">Outlook</div><div class="t2">Not connected</div></div><div class="switch" onclick="this.classList.toggle('on')"></div></div>
+  </div></div>
+`};
+VIEWS['profile-calsync-error']={tab:'profile', crumb:'Calendar sync — error', html:`
+  ${header('Syncing your data','go(\'profile-calsync\')','')}
+  <div class="view-scroll"><div class="section stack" style="align-items:center;text-align:center;padding-top:30px;">
+    <div style="background:#fdeceb;color:var(--danger);width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;">${I.cal}</div>
+    <h3>Error while synchronising</h3>
+    <p class="muted" style="font-size:12.5px;">Something went wrong reaching Google Calendar. You can retry the sync or disconnect this account.</p>
+    <div class="row" style="width:100%;gap:10px;">
+      <button class="btn ghost" style="flex:1;" onclick="go('profile-calsync')">Help &amp; Reconnect</button>
+      <button class="btn primary" style="flex:1;" onclick="go('profile-calsync')">Try Again</button>
+    </div>
+  </div></div>
+`};
+VIEWS['profile-business']={tab:'profile', crumb:'Business details', html:`
+  ${header('Business Details','go(\'profile\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="card stack">
+      <div class="field"><label>Business name</label><input value="Alvarez Farrier &amp; Equine Care"></div>
+      <div class="field"><label>Business email</label><input value="contact@alvarezfarrier.com"></div>
+      <div class="field"><label>Business phone</label><input value="+1 (208) 555-0142"></div>
+    </div>
+    <div class="section-head" style="padding:0;"><h3 style="font-size:12.5px;">Alternate contact</h3></div>
+    <div class="card stack">
+      <p class="muted" style="font-size:11.5px;">This alternate email has been published. Team members can be sent invites at this address.</p>
+      <div class="field"><label>Alternate email address</label><input value="diego@alvarezfarrier.com"></div>
+      <div class="field"><label>Alternate phone number</label><input value="+1 (208) 555-0198"></div>
+    </div>
+    <button class="btn primary" onclick="go('profile')">Save</button>
+    <button class="btn ghost" onclick="go('profile')">Cancel</button>
+  </div></div>
+`};
+VIEWS['profile-team']={tab:'profile', crumb:"User's Team", html:`
+  ${header("User's Team",'go(\'profile\')',`<button class="iconbtn">${I.plus}</button>`)}
+  <div class="view-scroll"><div class="section stack">
+    ${[['Sarah Mitchell','Owner'],['Diego Alvarez','Farrier'],['Priya Nair','Vet (read-only)']]
+       .map(m=>`<div class="tile" style="cursor:default;">${personAvatar(m[0])}<div class="tt"><div class="t1">${m[0]}</div><div class="t2">${m[1]}</div></div></div>`).join('')}
+    <button class="btn ghost">${I.plus} Invite team member</button>
+  </div></div>
+`};
+VIEWS['profile-sub']={tab:'profile', crumb:'Subscription', html:`
+  ${header('Subscription','go(\'profile\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="plancard popular"><div class="badge">CURRENT PLAN</div>
+      <div class="row between"><b style="font-size:15px;">Pro</b><div class="price">$19.99<span>/mo</span></div></div>
+      <div class="plandesc">Renews Oct 18 &middot; 22 days left in free trial</div>
+      <ul><li>${I.check}Own up to 10 horses</li><li>${I.check}Unlimited invoices</li><li>${I.check}Automatic reminders</li></ul>
+    </div>
+    <button class="btn primary" onclick="go('paywall')">Change plan</button>
+    <button class="btn ghost">Manage payment method</button>
+    <button class="linklike">Cancel subscription</button>
+  </div></div>
+`};
+VIEWS['profile-legal']={tab:'profile', crumb:'Legal & compliance', html:`
+  ${header('Legal & Compliance','go(\'profile\')','')}
+  <div class="view-scroll"><div class="section stack">
+    <div class="tile" style="cursor:default;"><div class="ic" style="background:var(--ink-faint)">${I.file}</div><div class="tt"><div class="t1">Terms of Use</div><div class="t2">Last updated Jun 2026</div></div></div>
+    <div class="tile" style="cursor:default;"><div class="ic" style="background:var(--ink-faint)">${I.shield}</div><div class="tt"><div class="t1">Privacy Policy</div><div class="t2">Last updated Jun 2026</div></div></div>
+    <div class="tile" style="cursor:default;"><div class="ic" style="background:var(--ink-faint)">${I.bug}</div><div class="tt"><div class="t1">Send Issue Report</div></div></div>
+  </div></div>
+`};
+
+/* ---------- CARE PROFESSIONAL TOOLS ---------- */
+VIEWS['biz-products']={tab:'profile', crumb:'Products', html:`
+  ${header('Products','go(\'home\')',`<button class="iconbtn">${I.plus}</button>`)}
+  <div class="view-scroll"><div class="section stack">
+    ${[['Standard Shoeing','$85.00'],['Corrective Shoeing','$120.00'],['Trim Only','$45.00'],['Emergency Visit','$150.00']].map(p=>`<div class="tile" style="cursor:default;"><div class="ic" style="background:var(--brand-2)">${I.bag}</div><div class="tt"><div class="t1">${p[0]}</div><div class="t2">Standard service</div></div><b style="font-size:13px;">${p[1]}</b></div>`).join('')}
+  </div></div>
+`};
+VIEWS['biz-inventory']={tab:'profile', crumb:'Inventory', html:`
+  ${header('Inventory','go(\'home\')',`<button class="iconbtn">${I.plus}</button>`)}
+  <div class="view-scroll"><div class="section stack">
+    ${[['Liberty City Head Nails','142 units'],['Mustad Anvil Rasps','8 units'],['EasyShoe Composite','23 sets'],['Hoof Sealant','5 bottles']].map(p=>`<div class="tile" style="cursor:default;"><div class="ic" style="background:#1f9d5a">${I.box}</div><div class="tt"><div class="t1">${p[0]}</div><div class="t2">In stock</div></div><b style="font-size:13px;">${p[1]}</b></div>`).join('')}
+  </div></div>
+`};
+VIEWS['biz-invoices']={tab:'profile', crumb:'Invoicing and Administration', html:`
+  ${header('Invoicing and Administration','go(\'profile\')',`<button class="iconbtn">${I.plus}</button>`)}
+  <div class="view-scroll"><div class="section stack">
+    <div class="tile" onclick="go('biz-quickbooks')"><div class="ic" style="background:#2CA01C">${I.bizcase}</div><div class="tt"><div class="t1">QuickBooks</div><div class="t2">Not connected &middot; sync invoices automatically</div></div><div class="chev">${I.chev}</div></div>
+    <div class="section-head" style="padding:0;margin-top:4px;"><h3 style="font-size:12.5px;">Providers</h3></div>
+    <div class="tile" style="cursor:default;"><div class="ic" style="background:var(--danger)">${I.invoice}</div><div class="tt"><div class="t1">#1042 &middot; Jennifer Cole</div><div class="t2">Overdue &middot; due Sep 10</div></div><b style="font-size:13px;">$35.00</b></div>
+    <div class="tile" style="cursor:default;"><div class="ic" style="background:var(--gold)">${I.invoice}</div><div class="tt"><div class="t1">#1043 &middot; Marcus Reed</div><div class="t2">Awaiting payment</div></div><b style="font-size:13px;">$150.00</b></div>
+    <div class="tile" style="cursor:default;"><div class="ic" style="background:#1f9d5a">${I.invoice}</div><div class="tt"><div class="t1">#1039 &middot; Sarah Mitchell</div><div class="t2">Paid Sep 2</div></div><b style="font-size:13px;">$85.00</b></div>
+  </div></div>
+`};
+VIEWS['biz-quickbooks']={tab:'profile', crumb:'Connect QuickBooks', html:`
+  ${header('QuickBooks','go(\'biz-invoices\')','')}
+  <div class="view-scroll"><div class="section stack" style="align-items:center;text-align:center;">
+    <div style="background:#2CA01C;color:#fff;width:56px;height:56px;border-radius:16px;margin-top:10px;display:flex;align-items:center;justify-content:center;">${I.bizcase}</div>
+    <h3 style="margin:4px 0 0;">Let's get you into QuickBooks</h3>
+    <p class="muted" style="font-size:12.5px;">Sign in to sync invoices, payments and providers through EQUINET.</p>
+    <div class="field" style="width:100%;text-align:left;"><label>Email or user ID</label><input placeholder="you@example.com"></div>
+    <div class="field" style="width:100%;text-align:left;"><label>Password</label><input type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"></div>
+    <button class="btn primary" style="width:100%;background:#2CA01C;" onclick="go('biz-quickbooks-synced')">Sign in &amp; connect</button>
+  </div></div>
+`};
+VIEWS['biz-quickbooks-synced']={tab:'profile', crumb:'QuickBooks synced', html:`
+  ${header('QuickBooks','go(\'biz-invoices\')','')}
+  <div class="view-scroll"><div class="section stack" style="align-items:center;text-align:center;padding-top:40px;">
+    <div style="background:var(--success);color:#fff;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;">${I.check}</div>
+    <h3>Synced successfully</h3>
+    <p class="muted" style="font-size:12.5px;">Invoices, payments and providers through EQUINET are now connected to QuickBooks.</p>
+    <button class="btn primary" onclick="go('biz-invoices')">Done</button>
+  </div></div>
+`};
+
+/* ============================================================
+   ROUTING / RENDER
+   ============================================================ */
+let history_ = ['splash'];
+function currentView(){ return history_[history_.length-1]; }
+
+function render(){
+  const id = currentView();
+  const v = VIEWS[id];
+  if(!v){ console.warn('missing view',id); return; }
+  const wrap = document.getElementById('screenwrap');
+  const needsLight = ['home','horses','search'].includes(id) || id.startsWith('horse-') ; // hero screens: statusbar sits over blue -> keep white; others light
+  const heroTop = ['home','search'].includes(id);
+  wrap.innerHTML = `<div class="view active">${heroTop?'':statusbar(true)}${heroTop?`<div style="position:relative;">${statusbar(false)}${v.html}</div>`:v.html}</div>`;
+  document.getElementById('crumbText').textContent = v.crumb;
+  // sync directory highlight
+  document.querySelectorAll('.flow-sub').forEach(el=>el.classList.toggle('active', el.dataset.v===id));
+  document.querySelectorAll('.flow-main').forEach(el=>{
+    const f = FLOWS.find(x=>x.id===el.dataset.f);
+    el.classList.toggle('active', f && f.subs.some(s=>s.v===id));
+  });
+}
+function go(id){
+  if(!VIEWS[id]){ console.warn('unknown view',id); return; }
+  history_.push(id);
+  render();
+}
+function back(){
+  if(history_.length>1){ history_.pop(); render(); }
+}
+function restart(){ history_=['splash']; render(); }
+function openHorse(hid){ go('horse-'+hid); }
+function pickRow(el){ el.parentElement.querySelectorAll('.pick-row').forEach(r=>r.classList.remove('on')); el.classList.add('on'); }
+function pickTile(el){ el.parentElement.querySelectorAll('.tile').forEach(r=>r.style.borderColor='var(--line)'); el.style.borderColor='var(--brand-2)'; }
+function chipSel(el){ el.parentElement.querySelectorAll('.chipsel').forEach(r=>r.classList.remove('on')); el.classList.add('on'); }
+
+/* ---------- build the left directory ---------- */
+function buildDirectory(){
+  const list = document.getElementById('flowlist');
+  list.innerHTML = FLOWS.map((f,i)=>`
+    <div class="flow-group">
+      <button class="flow-main" data-f="${f.id}" onclick="go('${f.start}')">
+        <span class="num">${String(i+1).padStart(2,'0')}</span>
+        <span class="txt"><span class="name">${f.name}</span><span class="desc">${f.desc}</span></span>
+      </button>
+      <div class="flow-subs">${f.subs.map(s=>`<span class="flow-sub" data-v="${s.v}" onclick="go('${s.v}')">${s.n}</span>`).join('')}</div>
+    </div>
+  `).join('');
+}
+buildDirectory();
+render();
+</script>
