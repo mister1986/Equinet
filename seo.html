@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EQUINET SEO Audit | Professional Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    /* Brand palette — Pantone 2935 C / Process Cyan C / Cool Gray 7C / Black 6 C */
+    --paper:#F4F8FC;
+    --paper-alt:#E8F1FA;
+    --ink:#0A0A0A;
+    --ink-soft:#4A4D50;
+    --ink-faint:#97999B;
+    --rule:#D6DEE6;
+    --rust:#0057B8;
+    --rust-soft:#009FE3;
+    --pine:#013A70;
+    --pine-soft:#4C8FC4;
+    --crit:#C0392B;
+    --high:#C97A00;
+    --med:#6E7072;
+    --low:#0057B8;
+    --card:#FFFFFF;
+    --sidebar-w:268px;
+    --focus:#009FE3;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+    font-size:16.5px;
+    line-height:1.65;
+  }
+  a{color:var(--rust);}
+  :focus-visible{outline:2.5px solid var(--focus); outline-offset:2px;}
+  svg.icon{width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0;}
+
+  /* reading progress bar */
+  #progress{position:fixed; top:0; left:0; height:3px; background:var(--rust); width:0%; z-index:100; transition:width .1s linear;}
+
+  /* ---------- COVER ---------- */
+  header.cover{
+    background:linear-gradient(115deg,#0057B8 0%, #009FE3 100%);
+    color:#FFFFFF;
+    padding:64px 40px 44px;
+    border-bottom:6px solid #000000;
+  }
+  header.cover .cover-inner{max-width:1180px; margin:0 auto;}
+  header.cover .eyebrow{
+    display:flex; align-items:center; gap:8px;
+    color:#FFFFFF; font-size:13.5px; letter-spacing:.02em; margin-bottom:16px; font-weight:600;
+  }
+  header.cover h1{
+    font-family:'Fraunces',Georgia,serif; font-weight:600;
+    font-size:clamp(30px,4.6vw,48px); line-height:1.08; margin:0 0 14px; max-width:760px;
+  }
+  header.cover p.sub{font-size:17px; color:#E4F4FD; max-width:600px; margin:0 0 26px;}
+  .meta-row{display:flex; flex-wrap:wrap; gap:22px 40px; border-top:1px solid rgba(255,255,255,.3); padding-top:20px;}
+  .meta-row div span.label{display:block; font-size:11.5px; color:#CDEBFA; margin-bottom:3px;}
+  .meta-row div span.val{font-family:'Fraunces',Georgia,serif; font-size:18px; color:#FFFFFF;}
+
+  /* ---------- LAYOUT: sidebar + main ---------- */
+  .layout{display:grid; grid-template-columns:var(--sidebar-w) minmax(0,1fr); max-width:1180px; margin:0 auto;}
+  aside.sidebar{
+    position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto;
+    padding:30px 18px 40px; border-right:1px solid var(--rule); background:var(--paper-alt);
+  }
+  aside.sidebar .legend{margin-top:26px; padding-top:18px; border-top:1px solid var(--rule); font-size:12px; color:var(--ink-soft);}
+  aside.sidebar .legend h5{margin:0 0 10px; font-size:11px; text-transform:none; color:var(--ink-faint); font-weight:600;}
+  aside.sidebar .legend-row{display:flex; align-items:center; gap:8px; margin-bottom:7px;}
+  aside.sidebar .dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+  nav ul{list-style:none; margin:0; padding:0;}
+  nav li a{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 10px; margin-bottom:2px; border-radius:3px;
+    color:var(--ink-soft); text-decoration:none; font-size:14px; font-weight:500;
+    border-left:3px solid transparent;
+  }
+  nav li a:hover{background:var(--paper); color:var(--ink);}
+  nav li a.active{background:var(--card); color:var(--rust); border-left-color:var(--rust); font-weight:600;}
+  nav li a svg{color:inherit; opacity:.75;}
+
+  main{padding:46px 44px 100px; min-width:0;}
+  section{margin-bottom:70px; scroll-margin-top:20px;}
+  .sec-head{display:flex; align-items:center; gap:14px; margin-bottom:6px;}
+  .sec-head .ic{
+    width:38px; height:38px; border-radius:50%; background:var(--paper-alt);
+    border:1px solid var(--rule); display:flex; align-items:center; justify-content:center; color:var(--rust); flex-shrink:0;
+  }
+  section h2{font-family:'Fraunces',Georgia,serif; font-weight:600; font-size:27px; margin:0;}
+  section .kicker{color:var(--ink-soft); font-size:15px; margin:0 0 28px; max-width:640px;}
+  h3{font-family:'Fraunces',Georgia,serif; font-weight:600; font-size:19px; margin:36px 0 12px; display:flex; align-items:center; gap:9px;}
+  h3 svg{color:var(--rust); opacity:.8;}
+  p{margin:0 0 14px; max-width:72ch;}
+  ul.plain{margin:0 0 14px; padding-left:20px;}
+  ul.plain li{margin-bottom:7px;}
+
+  /* stat tiles */
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1px; background:var(--rule); border:1px solid var(--rule); margin-bottom:26px;}
+  .stat{background:var(--card); padding:18px 18px 16px; border-left:3px solid var(--rust);}
+  .stat.alt{border-left-color:var(--pine);}
+  .stat .n{font-family:'Fraunces',Georgia,serif; font-size:29px; line-height:1; margin-bottom:6px;}
+  .stat .l{font-size:12px; color:var(--ink-soft);}
+
+  /* health gauge */
+  .gauge-wrap{background:var(--card); border:1px solid var(--rule); padding:22px 24px; margin-bottom:26px;}
+  .gauge-track{position:relative; height:10px; border-radius:6px; margin:14px 0 10px;
+    background:linear-gradient(90deg,var(--crit) 0%, var(--crit) 22%, var(--high) 22%, var(--high) 48%, var(--med) 48%, var(--med) 75%, var(--low) 75%, var(--low) 100%);}
+  .gauge-marker{position:absolute; top:-7px; width:2px; height:24px; background:var(--ink); left:37%;}
+  .gauge-marker::after{content:"Here — Needs Work"; position:absolute; top:-24px; left:50%; transform:translateX(-50%);
+    font-size:11.5px; font-weight:600; white-space:nowrap; color:var(--ink);}
+  .gauge-labels{display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-faint);}
+
+  /* callouts */
+  .callout{background:var(--card); border:1px solid var(--rule); border-left:4px solid var(--rust); padding:19px 22px; margin:20px 0;}
+  .callout.pine{border-left-color:var(--pine);}
+  .callout h4{margin:0 0 8px; font-size:15px; font-family:'Fraunces',Georgia,serif;}
+  .callout p:last-child{margin-bottom:0;}
+
+  /* charts / diagrams */
+  .chart-box{background:var(--card); border:1px solid var(--rule); padding:22px 22px 12px; margin-bottom:10px;}
+  .chart-box .cap{font-size:13px; color:var(--ink-soft); margin-top:10px;}
+  .diagram-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:20px; align-items:stretch; margin:20px 0 28px;}
+  @media (max-width:820px){.diagram-grid{grid-template-columns:1fr;}}
+  .diagram-box{background:var(--card); border:1px solid var(--rule); padding:20px;}
+  .diagram-box h4{margin:0 0 4px; font-size:14.5px; font-family:'Fraunces',Georgia,serif;}
+  .diagram-box .cap{font-size:12.5px; color:var(--ink-soft); margin-top:10px;}
+
+  /* tables */
+  table{width:100%; border-collapse:collapse; font-size:14.2px; margin-bottom:8px; background:var(--card);}
+  thead th{text-align:left; font-size:11.8px; font-weight:600; color:var(--ink-soft); border-bottom:2px solid var(--ink); padding:9px 12px; white-space:nowrap;}
+  tbody td{padding:9px 12px; border-bottom:1px solid var(--rule); vertical-align:top;}
+  tbody tr:hover{background:var(--paper-alt);}
+  td.num, th.num{text-align:right; font-variant-numeric:tabular-nums;}
+  .table-scroll{overflow-x:auto; margin-bottom:28px; border:1px solid var(--rule);}
+  .table-scroll table{border:none; margin-bottom:0;}
+
+  .tag{display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:600; padding:2px 8px 2px 6px; border-radius:3px; color:#fff; white-space:nowrap;}
+  .tag svg{width:11px; height:11px; stroke:#fff;}
+  .tag.crit{background:var(--crit);}
+  .tag.high{background:var(--high);}
+  .tag.med{background:var(--med);}
+  .tag.low{background:var(--low);}
+  .tag.pass{background:var(--pine);}
+
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  @media (max-width:820px){.grid-2, .grid-3{grid-template-columns:1fr;}}
+
+  .plan-col{background:var(--card); border:1px solid var(--rule); border-top:4px solid var(--rust); padding:20px 22px;}
+  .plan-col.high{border-top-color:var(--high);}
+  .plan-col.strategic{border-top-color:var(--pine);}
+  .plan-col h3{margin-top:0;}
+  .plan-item{margin-bottom:17px; padding-bottom:15px; border-bottom:1px solid var(--rule);}
+  .plan-item:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
+  .plan-item .t{font-weight:600; margin-bottom:4px; font-size:14.5px;}
+  .plan-item .meta{font-size:12px; color:var(--ink-soft);}
+
+  footer{background:var(--paper-alt); border-top:1px solid var(--rule); padding:28px 44px 50px; font-size:13px; color:var(--ink-soft);}
+  footer p{max-width:none;}
+
+  .mono{font-family:'SFMono-Regular',Consolas,monospace; font-size:.9em; background:var(--paper-alt); padding:1px 5px; border-radius:2px;}
+
+  /* mobile: collapse sidebar to top */
+  @media (max-width:900px){
+    .layout{grid-template-columns:1fr;}
+    aside.sidebar{position:static; height:auto; border-right:none; border-bottom:1px solid var(--rule); padding:18px;}
+    nav ul{display:flex; flex-wrap:wrap; gap:4px;}
+    nav li a{font-size:13px; padding:7px 9px;}
+    aside.sidebar .legend{display:none;}
+    main{padding:36px 20px 80px;}
+    header.cover{padding:44px 20px 34px;}
+    footer{padding:24px 20px 40px;}
+  }
+
+  /* ---------- PROFESSIONAL REPORT REFRESH ---------- */
+  :root{
+    --paper:#f7f9fc;
+    --paper-alt:#eef3f8;
+    --ink:#122033;
+    --ink-soft:#506174;
+    --ink-faint:#7c8a9a;
+    --rule:#dbe3ec;
+    --rust:#0b63ce;
+    --rust-soft:#3ea1f4;
+    --pine:#0e3154;
+    --pine-soft:#6c9bc8;
+    --card:#ffffff;
+    --focus:#1687e8;
+    --shadow:0 10px 30px rgba(19,48,79,.07);
+    --shadow-sm:0 3px 12px rgba(19,48,79,.06);
+  }
+  body{background:var(--paper);color:var(--ink);font-size:15.5px;line-height:1.7;letter-spacing:.005em;}
+  a{color:var(--rust);}
+  #progress{height:4px;background:linear-gradient(90deg,var(--rust),var(--rust-soft));}
+  header.cover{position:relative;overflow:hidden;background:linear-gradient(130deg,#092f54 0%,#0b63ce 58%,#36a4ef 100%);padding:76px 48px 52px;border-bottom:0;}
+  header.cover:after{content:"";position:absolute;right:-110px;top:-150px;width:430px;height:430px;border:1px solid rgba(255,255,255,.18);border-radius:50%;box-shadow:0 0 0 32px rgba(255,255,255,.045),0 0 0 64px rgba(255,255,255,.035);}
+  header.cover .cover-inner{position:relative;z-index:1;max-width:1240px;}
+  header.cover .eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:#bfe2ff;margin-bottom:22px;}
+  header.cover h1{font-size:clamp(35px,5vw,62px);letter-spacing:-.035em;margin-bottom:16px;}
+  header.cover p.sub{font-size:17px;line-height:1.6;color:#d8edff;max-width:720px;margin-bottom:34px;}
+  .meta-row{gap:18px 44px;border-top:1px solid rgba(255,255,255,.24);padding-top:22px;}
+  .meta-row div{min-width:120px;}
+  .meta-row div span.label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#a9d5f7;margin-bottom:5px;}
+  .meta-row div span.val{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#fff;}
+  .layout{max-width:1240px;grid-template-columns:250px minmax(0,1fr);}
+  aside.sidebar{padding:34px 16px 42px;background:rgba(238,243,248,.72);border-right:1px solid var(--rule);}
+  nav li a{border-radius:8px;padding:10px 12px;margin-bottom:4px;font-size:13px;transition:all .18s ease;}
+  nav li a:hover{background:#fff;box-shadow:var(--shadow-sm);transform:translateX(2px);}
+  nav li a.active{background:#fff;color:var(--rust);border-left-color:var(--rust);box-shadow:var(--shadow-sm);}
+  aside.sidebar .legend{margin-top:34px;padding:20px 12px 0;}
+  main{padding:58px 54px 110px;}
+  section{margin-bottom:92px;scroll-margin-top:26px;}
+  .sec-head{gap:15px;margin-bottom:8px;}
+  .sec-head .ic{width:42px;height:42px;border-radius:12px;background:#e4f1fd;border:0;color:var(--rust);}
+  section h2{font-size:30px;letter-spacing:-.025em;}
+  section .kicker{font-size:15px;line-height:1.65;color:var(--ink-soft);margin:0 0 30px;max-width:720px;}
+  h3{font-size:20px;letter-spacing:-.015em;margin:42px 0 14px;}
+  h3 svg{color:var(--rust);}
+  p{max-width:75ch;}
+  .stat-grid{gap:12px;background:transparent;border:0;margin-bottom:30px;}
+  .stat{border:1px solid var(--rule);border-left:0;border-top:3px solid var(--rust);border-radius:10px;padding:22px 20px 18px;box-shadow:var(--shadow-sm);}
+  .stat.alt{border-left:0;border-top-color:var(--pine);}
+  .stat .n{font-size:32px;color:var(--pine);letter-spacing:-.03em;}
+  .stat .l{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-faint);}
+  .gauge-wrap,.chart-box,.diagram-box,.callout,.plan-col{border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow-sm);}
+  .gauge-wrap{padding:24px 26px;margin-bottom:30px;}
+  .gauge-track{height:12px;margin:20px 0 12px;box-shadow:inset 0 1px 3px rgba(0,0,0,.14);}
+  .gauge-marker{width:3px;height:28px;top:-8px;border-radius:3px;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+  .gauge-marker::after{top:-27px;font-size:11px;color:var(--rust);}
+  .callout{padding:20px 24px;margin:22px 0;background:#fff;}
+  .callout:not(.pine){background:linear-gradient(135deg,#fff 0%,#f5faff 100%);}
+  .callout h4{font-size:16px;color:var(--pine);}
+  .chart-box{padding:24px 24px 14px;margin-bottom:14px;}
+  .diagram-grid{gap:24px;margin:24px 0 32px;}
+  .diagram-box{padding:24px;}
+  .table-scroll{border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow-sm);}
+  table{font-size:13.5px;}
+  thead th{background:#f1f5f9;border-bottom:2px solid #b9c8d8;padding:12px 14px;text-transform:uppercase;letter-spacing:.07em;font-size:10.5px;color:#52677d;}
+  tbody td{padding:12px 14px;border-bottom:1px solid #e6edf4;}
+  tbody tr:last-child td{border-bottom:0;}
+  tbody tr:hover{background:#f5faff;}
+  .tag{border-radius:999px;padding:3px 9px 3px 7px;font-size:10.5px;letter-spacing:.02em;}
+  .mono{background:#eef4fa;color:#244c70;border-radius:4px;}
+  .plan-col{padding:24px 24px 22px;border-top-width:5px;}
+  .plan-col h3{font-size:20px;margin-bottom:20px;}
+  .plan-item{padding:0 0 17px;margin:0 0 17px;}
+  .plan-item .t{font-size:14px;line-height:1.45;color:var(--ink);}
+  .plan-item .meta{font-size:11.5px;line-height:1.5;margin-top:5px;color:var(--ink-faint);}
+  footer{background:#eaf0f6;border-top:1px solid #d6e0ea;padding:32px 54px 54px;font-size:12.5px;line-height:1.7;}
+  footer p:first-child{color:var(--pine);font-size:14px;}
+  @media (max-width:900px){
+    header.cover{padding:54px 24px 40px;}
+    .layout{grid-template-columns:1fr;}
+    aside.sidebar{padding:18px 20px;}
+    main{padding:42px 22px 80px;}
+    section{margin-bottom:70px;}
+    footer{padding:26px 22px 42px;}
+  }
+  @media print{
+    body{background:#fff;font-size:10.5pt;}
+    #progress,aside.sidebar{display:none!important;}
+    header.cover{padding:34px 40px 28px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    header.cover:after{display:none;}
+    .layout{display:block;max-width:none;}
+    main{padding:28px 40px 40px;}
+    section{page-break-inside:avoid;margin-bottom:42px;}
+    .chart-box,.diagram-box,.callout,.plan-col,.stat{box-shadow:none;}
+    .table-scroll{box-shadow:none;}
+    footer{padding:24px 40px;}
+    a{color:inherit;text-decoration:none;}
+  }
+
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="cover">
+  <div class="cover-inner">
+    <div class="eyebrow"><span style="opacity:.75">CONFIDENTIAL • GROWTH &amp; SEO</span><span style="opacity:.45">/</span>
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+      SEO Audit &amp; Search Performance Review
+    </div>
+    <h1>EQUINET — equinetapp.com</h1>
+    <p class="sub">A full-site technical, on-page, and 12-month Search Console review, with a prioritized action plan for the Mustad EQUINET marketing team.</p>
+    <div class="meta-row">
+      <div><span class="label">Prepared</span><span class="val">September 18, 2026</span></div>
+      <div><span class="label">GSC data window</span><span class="val">Sep 16, 2025 – Sep 15, 2026</span></div>
+      <div><span class="label">Pages reviewed</span><span class="val">Homepage, Features, subpages, blog, FAQ</span></div>
+      <div><span class="label">Method</span><span class="val">Live fetch + Search Console export</span></div>
+      <div><span class="label">Created by</span><span class="val">Mohammad Reza</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav aria-label="Report sections">
+      <ul>
+        <li><a href="#summary" data-nav><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>Executive Summary</a></li>
+        <li><a href="#performance" data-nav><svg class="icon" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 7-8"/><path d="M15 7h5v5"/></svg>Search Performance</a></li>
+        <li><a href="#keywords" data-nav><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Keyword Opportunities</a></li>
+        <li><a href="#onpage" data-nav><svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M9 13h6M9 17h6M9 9h2"/></svg>On-Page Findings</a></li>
+        <li><a href="#technical" data-nav><svg class="icon" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 005.4-5.4l-2.8 2.8-2-2z"/></svg>Technical SEO</a></li>
+        <li><a href="#aeo" data-nav><svg class="icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-9 8.4A8.5 8.5 0 013 12a8.5 8.5 0 0114.5-6"/><path d="M9 10h.01M13 10h.01M17 10h.01"/></svg>AEO &amp; GEO</a></li>
+        <li><a href="#competitors" data-nav><svg class="icon" viewBox="0 0 24 24"><circle cx="8" cy="9" r="3.2"/><circle cx="16" cy="9" r="3.2"/><path d="M2.5 19c.7-3 3-4.6 5.5-4.6s4.8 1.6 5.5 4.6M10.5 19c.7-3 3-4.6 5.5-4.6s4.8 1.6 5.5 4.6"/></svg>Competitive Landscape</a></li>
+        <li><a href="#intl" data-nav><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 6 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-6-3.8-9s1.3-6.3 3.8-9z"/></svg>International Demand</a></li>
+        <li><a href="#plan" data-nav><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 3v3h6V3M8 12l2.5 2.5L16 9"/></svg>Action Plan</a></li>
+      </ul>
+    </nav>
+    <div class="legend">
+      <h5>Severity key</h5>
+      <div class="legend-row"><span class="dot" style="background:var(--crit)"></span>Critical — fix immediately</div>
+      <div class="legend-row"><span class="dot" style="background:var(--high)"></span>High — meaningful traffic cost</div>
+      <div class="legend-row"><span class="dot" style="background:var(--med)"></span>Medium — worth scheduling</div>
+      <div class="legend-row"><span class="dot" style="background:var(--low)"></span>Low / Pass — fine as-is</div>
+    </div>
+  </aside>
+
+  <main>
+
+  <!-- 1. EXECUTIVE SUMMARY -->
+  <section id="summary">
+    <div class="sec-head">
+      <span class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></span>
+      <h2>1. Executive Summary</h2>
+    </div>
+    <p class="kicker">Over the trailing 12 months, equinetapp.com earned real, sustained organic demand — but a rising tide of duplicate and stray URLs is quietly capping how much of that demand converts into clicks.</p>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="n">2,126</div><div class="l">Total clicks (12 mo.)</div></div>
+      <div class="stat"><div class="n">73,052</div><div class="l">Total impressions</div></div>
+      <div class="stat"><div class="n">2.91%</div><div class="l">Average CTR</div></div>
+      <div class="stat alt"><div class="n">7.8</div><div class="l">Average position</div></div>
+    </div>
+
+    <div class="gauge-wrap">
+      <strong style="font-size:14px;">Overall SEO health</strong>
+      <div class="gauge-track"><div class="gauge-marker"></div></div>
+      <div class="gauge-labels"><span>Critical</span><span>Needs Work</span><span>Good</span><span>Excellent</span></div>
+    </div>
+
+    <p>The site's biggest strength is brand-search dominance: <span class="mono">equinet app</span> ranks at position 1.23 with a 50% CTR, and the branded query set (<span class="mono">equinet</span>, <span class="mono">equinet app</span>, common misspellings) accounts for the large majority of all clicks. Farriers who already know the app find it instantly.</p>
+
+    <p>The two things holding EQUINET back aren't lack of demand — they're structural. First, <strong>average ranking position degraded from ~6.3–7.4 (Sep 2025–Mar 2026) to a low of 10.8 in August 2026</strong>, even as impression volume held roughly steady — a pattern consistent with Google's March 2026 core update, which rewarded topical authority and penalized thin/duplicate content more heavily. Second, the audit found that <strong>at least 100 of the 220 URLs Google has indexed for this domain (~46%) are duplicates, tracking-parameter variants, or stale test pages</strong> competing against the real pages for the same rankings (see the breakdown diagram in Section 5).</p>
+
+    <p>Third, a cluster of 15+ high-commercial-intent "farrier software" keywords — <span class="mono">farrier scheduling software</span>, <span class="mono">farrier CRM</span>, <span class="mono">farrier invoicing software</span>, <span class="mono">farrier business management</span> — are already generating meaningful impression volume but sit on page 2 (positions 10–22) and earn zero clicks. This is the single largest untapped growth lever the data points to.</p>
+
+    <div class="callout">
+      <h4>Overall assessment: Needs Work</h4>
+      <p>Strong brand foundation and genuinely useful feature content, but real technical debt (duplicate URL structure, no structured data, thin AEO/GEO framing) is actively suppressing non-branded growth. None of the fixes below require a rebuild — they're config, consolidation, and content-depth work.</p>
+    </div>
+
+    <p><strong>Top 3 priorities:</strong></p>
+    <ul class="plain">
+      <li><strong>Consolidate the URL structure</strong> — resolve the root vs. <span class="mono">/us/</span> duplication, strip HubSpot tracking parameters from indexable URLs, and retire orphaned/legacy pages.</li>
+      <li><strong>Build for the "farrier software" keyword cluster</strong> — dedicated, comprehensive landing pages for the commercial-intent terms currently stuck at positions 10–22.</li>
+      <li><strong>Add structured data and answer-first content</strong> — Search Console shows zero rich-result appearances beyond automatic translation; there is no FAQ, Organization, or Article schema currently earning enhanced SERP real estate.</li>
+    </ul>
+  </section>
+
+  <!-- 2. SEARCH PERFORMANCE -->
+  <section id="performance">
+    <div class="sec-head">
+      <span class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 7-8"/><path d="M15 7h5v5"/></svg></span>
+      <h2>2. Search Performance (12-Month Trend)</h2>
+    </div>
+    <p class="kicker">Pulled directly from the Search Console export. Impressions grew steadily through the year; average ranking position moved the wrong way from spring onward.</p>
+
+    <div class="chart-box">
+      <canvas id="trendChart" height="260" role="img" aria-label="Chart showing monthly clicks and impressions as bars, and average search position as a line, from September 2025 to September 2026"></canvas>
+      <p class="cap">Monthly clicks &amp; impressions (bars, left axis) vs. impression-weighted average position (line, right axis — axis is reversed so an upward line means rankings improving).</p>
+    </div>
+
+    <div class="callout pine">
+      <h4>Reading the trend</h4>
+      <p>Position held in the 6.3–7.4 range from September 2025 through March 2026, then fell steadily to 10.8 by August before a partial recovery in September. Impressions didn't collapse — the site is still being surfaced — but it's landing lower on the page, which is exactly the CTR-killing pattern you'd expect from index bloat and duplicate content diluting ranking signals across near-identical URLs (see Section 5).</p>
+    </div>
+
+    <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Top queries (12 months)</h3>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Query</th><th class="num">Clicks</th><th class="num">Impressions</th><th class="num">CTR</th><th class="num">Avg. position</th></tr></thead>
+      <tbody>
+        <tr><td>equinet</td><td class="num">786</td><td class="num">24,405</td><td class="num">3.22%</td><td class="num">7.56</td></tr>
+        <tr><td>equinet app</td><td class="num">136</td><td class="num">271</td><td class="num">50.18%</td><td class="num">1.23</td></tr>
+        <tr><td>farrier app</td><td class="num">33</td><td class="num">380</td><td class="num">8.68%</td><td class="num">4.51</td></tr>
+        <tr><td>equi net</td><td class="num">8</td><td class="num">656</td><td class="num">1.22%</td><td class="num">5.14</td></tr>
+        <tr><td>farrier software</td><td class="num">3</td><td class="num">221</td><td class="num">1.36%</td><td class="num">9.86</td></tr>
+        <tr><td>farrier scheduling app</td><td class="num">3</td><td class="num">204</td><td class="num">1.47%</td><td class="num">10.86</td></tr>
+        <tr><td>equinet login</td><td class="num">2</td><td class="num">409</td><td class="num">0.49%</td><td class="num">6.26</td></tr>
+        <tr><td>farrier business software</td><td class="num">2</td><td class="num">225</td><td class="num">0.89%</td><td class="num">13.54</td></tr>
+        <tr><td>farrier billing software</td><td class="num">2</td><td class="num">168</td><td class="num">1.19%</td><td class="num">14.95</td></tr>
+        <tr><td>horse entries</td><td class="num">0</td><td class="num">1,227</td><td class="num">0.00%</td><td class="num">5.33</td></tr>
+        <tr><td>mustad farrier portal</td><td class="num">0</td><td class="num">887</td><td class="num">0.00%</td><td class="num">6.23</td></tr>
+        <tr><td>farrier record keeping</td><td class="num">0</td><td class="num">267</td><td class="num">0.00%</td><td class="num">13.24</td></tr>
+        <tr><td>iforgeahead <span class="tag low">competitor brand</span></td><td class="num">0</td><td class="num">242</td><td class="num">0.00%</td><td class="num">6.93</td></tr>
+        <tr><td>farrier crm</td><td class="num">0</td><td class="num">164</td><td class="num">0.00%</td><td class="num">18.44</td></tr>
+        <tr><td>farrier appointment scheduling</td><td class="num">0</td><td class="num">134</td><td class="num">0.00%</td><td class="num">7.93</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3><svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M9 13h6M9 17h6M9 9h2"/></svg>Top pages (12 months)</h3>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Page</th><th class="num">Clicks</th><th class="num">Impressions</th><th class="num">CTR</th><th class="num">Avg. position</th></tr></thead>
+      <tbody>
+        <tr><td>/ (homepage)</td><td class="num">1,565</td><td class="num">36,730</td><td class="num">4.26%</td><td class="num">6.11</td></tr>
+        <tr><td>/frequentlyaskedquestions</td><td class="num">40</td><td class="num">2,556</td><td class="num">1.56%</td><td class="num">5.41</td></tr>
+        <tr><td>/us/features/invoicing</td><td class="num">36</td><td class="num">2,770</td><td class="num">1.30%</td><td class="num">8.98</td></tr>
+        <tr><td>/us/pricing</td><td class="num">32</td><td class="num">455</td><td class="num">7.03%</td><td class="num">3.45</td></tr>
+        <tr><td>/gettingstarted</td><td class="num">30</td><td class="num">5,113</td><td class="num">0.59%</td><td class="num">6.99</td></tr>
+        <tr><td>/support/videotutorials</td><td class="num">27</td><td class="num">7,816</td><td class="num">0.35%</td><td class="num">7.91</td></tr>
+        <tr><td>/about</td><td class="num">23</td><td class="num">3,502</td><td class="num">0.66%</td><td class="num">6.76</td></tr>
+        <tr><td>/features/appointments</td><td class="num">20</td><td class="num">1,929</td><td class="num">1.04%</td><td class="num">6.58</td></tr>
+        <tr><td>/contact</td><td class="num">17</td><td class="num">3,329</td><td class="num">0.51%</td><td class="num">11.81</td></tr>
+        <tr><td>/features (hub page)</td><td class="num">13</td><td class="num">3,884</td><td class="num">0.33%</td><td class="num">8.34</td></tr>
+        <tr><td>/features/horseentries</td><td class="num">1</td><td class="num">1,842</td><td class="num">0.05%</td><td class="num">6.34</td></tr>
+        <tr><td>/features/invoicing (root)</td><td class="num">8</td><td class="num">435</td><td class="num">1.84%</td><td class="num">9.46</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <h3><svg class="icon" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>By device</h3>
+        <div class="table-scroll">
+        <table>
+          <thead><tr><th>Device</th><th class="num">Clicks</th><th class="num">Impr.</th><th class="num">CTR</th><th class="num">Pos.</th></tr></thead>
+          <tbody>
+            <tr><td>Mobile</td><td class="num">1,071</td><td class="num">25,285</td><td class="num">4.24%</td><td class="num">6.89</td></tr>
+            <tr><td>Desktop</td><td class="num">1,012</td><td class="num">46,917</td><td class="num">2.16%</td><td class="num">8.26</td></tr>
+            <tr><td>Tablet</td><td class="num">43</td><td class="num">850</td><td class="num">5.06%</td><td class="num">7.14</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p style="font-size:13.5px; color:var(--ink-soft);">Mobile out-performs desktop on both CTR and position, despite desktop carrying nearly double the impressions — worth keeping in mind given farriers overwhelmingly search from the field.</p>
+      </div>
+      <div>
+        <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 6 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-6-3.8-9s1.3-6.3 3.8-9z"/></svg>Top countries</h3>
+        <div class="table-scroll">
+        <table>
+          <thead><tr><th>Country</th><th class="num">Clicks</th><th class="num">Impr.</th><th class="num">CTR</th></tr></thead>
+          <tbody>
+            <tr><td>United States</td><td class="num">1,042</td><td class="num">23,331</td><td class="num">4.47%</td></tr>
+            <tr><td>Australia</td><td class="num">299</td><td class="num">4,655</td><td class="num">6.42%</td></tr>
+            <tr><td>Canada <span class="tag med">not served</span></td><td class="num">54</td><td class="num">15,835</td><td class="num">0.34%</td></tr>
+            <tr><td>United Kingdom <span class="tag med">not served</span></td><td class="num">86</td><td class="num">4,032</td><td class="num">2.13%</td></tr>
+            <tr><td>New Zealand</td><td class="num">56</td><td class="num">649</td><td class="num">8.63%</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p style="font-size:13.5px; color:var(--ink-soft);">See Section 8 — Canada alone generated 15,835 impressions against a 0.34% CTR.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. KEYWORD OPPORTUNITIES -->
+  <section id="keywords">
+    <div class="sec-head">
+      <span class="ic"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+      <h2>3. Keyword Opportunities</h2>
+    </div>
+    <p class="kicker">Sorted by opportunity score — a blend of existing impression volume (proven demand), current position (how close to page 1), and commercial relevance to EQUINET.</p>
+
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Keyword</th><th>Position</th><th>Impr. (12mo)</th><th>Intent</th><th>Opportunity</th><th>Recommended content</th></tr></thead>
+      <tbody>
+        <tr><td>farrier scheduling software</td><td class="num">13.62</td><td class="num">228</td><td>Commercial</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M12 2l9 20H3z"/></svg>High</span></td><td>Dedicated landing page + comparison table</td></tr>
+        <tr><td>farrier software</td><td class="num">9.86</td><td class="num">221</td><td>Commercial</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M12 2l9 20H3z"/></svg>High</span></td><td>Rework <span class="mono">/features</span> hub as the target page</td></tr>
+        <tr><td>farrier business software</td><td class="num">13.54</td><td class="num">225</td><td>Commercial</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M12 2l9 20H3z"/></svg>High</span></td><td>New pillar page: "Farrier Business Software"</td></tr>
+        <tr><td>farrier crm</td><td class="num">18.44</td><td class="num">164</td><td>Commercial</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M12 2l9 20H3z"/></svg>High</span></td><td>New page framing Contacts + Teams as a CRM</td></tr>
+        <tr><td>farrier billing software</td><td class="num">14.95</td><td class="num">168</td><td>Commercial</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M12 2l9 20H3z"/></svg>High</span></td><td>Reposition <span class="mono">/features/invoicing</span></td></tr>
+        <tr><td>farrier invoice software</td><td class="num">13.48</td><td class="num">155</td><td>Commercial</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M12 2l9 20H3z"/></svg>High</span></td><td>Same invoicing page, add FAQ block</td></tr>
+        <tr><td>farrier route planning</td><td class="num">4.97</td><td class="num">149</td><td>Info/Commercial</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M12 2l9 20H3z"/></svg>High</span></td><td>Near page-1 already — short page or FAQ answer</td></tr>
+        <tr><td>farrier record keeping</td><td class="num">13.24</td><td class="num">267</td><td>Informational</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M12 2l9 20H3z"/></svg>High</span></td><td>Long-form guide, links to Horse Entries feature</td></tr>
+        <tr><td>iforgeahead <em>(competitor)</em></td><td class="num">6.93</td><td class="num">242</td><td>Comparison</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M12 2l9 20H3z"/></svg>High</span></td><td>"EQUINET vs. iForgeAhead" comparison page</td></tr>
+        <tr><td>farrier service management</td><td class="num">13.51</td><td class="num">143</td><td>Commercial</td><td><span class="tag med"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Medium</span></td><td>Blend into pillar page above</td></tr>
+        <tr><td>horse farrier management app</td><td class="num">10.69</td><td class="num">201</td><td>Commercial</td><td><span class="tag med"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Medium</span></td><td>Target on homepage title/meta refresh</td></tr>
+        <tr><td>farrier appointment scheduling</td><td class="num">7.93</td><td class="num">134</td><td>Commercial</td><td><span class="tag med"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Medium</span></td><td>Optimize <span class="mono">/features/appointments</span></td></tr>
+        <tr><td>farrier client management</td><td class="num">13.24</td><td class="num">192</td><td>Commercial</td><td><span class="tag med"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Medium</span></td><td>Fold into CRM pillar page</td></tr>
+        <tr><td>farrier management software</td><td class="num">16.21</td><td class="num">131</td><td>Commercial</td><td><span class="tag med"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Medium</span></td><td>Category page targeting this exact phrase</td></tr>
+        <tr><td>farrier appointment booking</td><td class="num">10.23</td><td class="num">116</td><td>Commercial</td><td><span class="tag med"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Medium</span></td><td>FAQ block on Appointments page</td></tr>
+        <tr><td>equine billing software</td><td class="num">21.95</td><td class="num">122</td><td>Commercial</td><td><span class="tag low"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>Low</span></td><td>Long-tail — secondary keyword only</td></tr>
+        <tr><td>equine invoicing software</td><td class="num">17.06</td><td class="num">120</td><td>Commercial</td><td><span class="tag low"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>Low</span></td><td>Secondary keyword on invoicing page</td></tr>
+        <tr><td>how to schedule farrier appointments</td><td class="num">—</td><td class="num">—</td><td>Informational</td><td><span class="tag med"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Medium</span></td><td>New long-tail blog post, question-phrased H1</td></tr>
+        <tr><td>best app for farriers</td><td class="num">—</td><td class="num">—</td><td>Comm. investigation</td><td><span class="tag med"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Medium</span></td><td>Comparison/roundup page naming EQUINET first</td></tr>
+        <tr><td>digital hoof care records</td><td class="num">—</td><td class="num">—</td><td>Informational</td><td><span class="tag low"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>Low</span></td><td>Blog post supporting Horse Entries feature</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:13px; color:var(--ink-soft);">Rows with a dash under position/impressions are not yet ranking in the top 100 for this domain and are proposed net-new targets based on the adjacent query cluster and competitor coverage, not current GSC data.</p>
+  </section>
+
+  <!-- 4. ON-PAGE FINDINGS -->
+  <section id="onpage">
+    <div class="sec-head">
+      <span class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/><path d="M9 13h6M9 17h6M9 9h2"/></svg></span>
+      <h2>4. On-Page SEO Findings</h2>
+    </div>
+    <p class="kicker">Based on a live fetch of the homepage, the Features hub, an individual feature page (Horse Profiles), and the blog index.</p>
+
+    <div class="diagram-grid">
+      <div class="chart-box">
+        <canvas id="ctrGapChart" height="200" role="img" aria-label="Bar chart comparing impressions and clicks for pages with the biggest click-through-rate gap"></canvas>
+        <p class="cap">Pages with real visibility but the weakest pull-through — the gap between the grey (impressions, scaled ÷100) and rust (clicks) bars is the opportunity.</p>
+      </div>
+      <div class="diagram-box">
+        <h4>Why this matters</h4>
+        <p style="margin-bottom:10px; font-size:14.5px;"><strong>/features/horseentries</strong> pulled 1,842 impressions this year and converted exactly <strong>one</strong> click. That's not a ranking problem — it's already showing up in results. It's a title-and-snippet problem: the page isn't telling searchers it answers their question before they click.</p>
+        <p style="margin-bottom:0; font-size:14.5px;">Fixing the title/meta on these five pages alone, with no ranking improvement at all, could plausibly recover several hundred clicks a year just from closing the CTR gap to the site average (2.91%).</p>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Page</th><th>Issue</th><th>Severity</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>/features</td><td>Title tag is just "EQUINET Features" — 17 characters, no keyword, and the page still draws 3,884 impressions/year at a 0.33% CTR, the weakest CTR of any page with meaningful volume.</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M12 2l9 20H3z"/></svg>High</span></td><td>Rewrite to "EQUINET Features | Farrier Business Management App" and write a benefit-driven meta description with a CTA.</td></tr>
+        <tr><td>/features/horseentries</td><td>1,842 impressions but 1 click all year (0.05% CTR) — by far the largest CTR gap on the site.</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M12 2l9 20H3z"/></svg>High</span></td><td>New title/meta targeting "farrier record keeping" intent directly; the current copy undersells a page that's already earning visibility.</td></tr>
+        <tr><td>All feature subpages</td><td>Titles follow "EQUINET Features: [Name]" — consistent, but never include "farrier," "app," or the underlying job-to-be-done, so they don't match how people actually search.</td><td><span class="tag med"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Medium</span></td><td>Add a keyword-bearing suffix, e.g. "Horse Profiles for Farriers | EQUINET Features."</td></tr>
+        <tr><td>Homepage</td><td>Meta description is accurate but generic and has no call to action; deprecated <span class="mono">meta-keywords</span> tag is still present (harmless but worth removing during other edits).</td><td><span class="tag low"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>Low</span></td><td>Add a CTA clause ("Free for AU/NZ/US farriers — download today"); drop the keywords meta tag.</td></tr>
+        <tr><td>/support/videotutorials</td><td>7,816 impressions/year, only 0.35% CTR — high visibility, weak pull-through.</td><td><span class="tag med"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Medium</span></td><td>Add video schema and a more descriptive title than the current generic "Video Tutorials."</td></tr>
+        <tr><td>The Smart Farrier Blog</td><td>No visible publish/updated dates and no author byline on any post sampled — both are E‑E‑A‑T and freshness signals Google and AI answer engines weight explicitly.</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M12 2l9 20H3z"/></svg>High</span></td><td>Add a visible "Published"/"Updated" date and an author line to every post.</td></tr>
+        <tr><td>Feature pages generally</td><td>Content is written as marketing bullet copy, not as direct answers to what farriers actually type — a mismatch with how both classic snippets and AI Overviews pull content.</td><td><span class="tag med"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Medium</span></td><td>Add a 2–3 sentence "answer-first" block at the top of each feature section (see Section 6).</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- 5. TECHNICAL -->
+  <section id="technical">
+    <div class="sec-head">
+      <span class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 005.4-5.4l-2.8 2.8-2-2z"/></svg></span>
+      <h2>5. Technical SEO</h2>
+    </div>
+    <p class="kicker">The GSC "Pages" report gives an unusually clear window into index bloat: of the 220 distinct URLs Google reports data for, well under half are unique canonical pages.</p>
+
+    <div class="diagram-grid">
+      <div class="chart-box">
+        <canvas id="urlDonut" height="230" role="img" aria-label="Donut chart showing that of 220 indexed URLs, 108 are canonical pages, 67 are duplicate /us/ paths, 31 carry tracking parameters, and 14 are legacy or test pages"></canvas>
+      </div>
+      <div class="diagram-box">
+        <h4>What's actually indexed</h4>
+        <div class="stat-grid" style="margin-bottom:0;">
+          <div class="stat" style="border-left-color:var(--pine);"><div class="n">108</div><div class="l">Canonical pages</div></div>
+          <div class="stat"><div class="n">67</div><div class="l">/us/ duplicate paths</div></div>
+          <div class="stat" style="border-left-color:var(--high);"><div class="n">31</div><div class="l">Tracking-parameter URLs</div></div>
+          <div class="stat" style="border-left-color:var(--crit);"><div class="n">14</div><div class="l">Legacy / test pages</div></div>
+        </div>
+      </div>
+    </div>
+
+    <h3><svg class="icon" viewBox="0 0 24 24"><path d="M6 3v18M18 3v18"/><path d="M6 3h6a4 4 0 010 8H6M18 21h-6a4 4 0 010-8h6"/></svg>How signal gets split</h3>
+    <div class="diagram-box" style="margin-bottom:28px;">
+      <svg viewBox="0 0 760 220" width="100%" height="auto" role="img" aria-label="Diagram showing one piece of content splitting across three separate indexed URLs: the root path, the /us/ path, and a version with tracking parameters, each receiving only a fraction of the page's total ranking signal">
+        <rect x="290" y="10" width="180" height="46" rx="4" fill="#E8F1FA" stroke="#D6DEE6"/>
+        <text x="380" y="38" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-size="15" fill="#0A0A0A">One page of content</text>
+
+        <path d="M340 56 L200 110" stroke="#D6DEE6" stroke-width="1.5" fill="none"/>
+        <path d="M380 56 L380 110" stroke="#D6DEE6" stroke-width="1.5" fill="none"/>
+        <path d="M420 56 L560 110" stroke="#D6DEE6" stroke-width="1.5" fill="none"/>
+
+        <rect x="90" y="110" width="220" height="52" rx="4" fill="#FFFFFF" stroke="#0057B8" stroke-width="1.5"/>
+        <text x="200" y="132" text-anchor="middle" font-size="12.5" font-family="SFMono-Regular,Consolas,monospace" fill="#0A0A0A">/features/invoicing</text>
+        <text x="200" y="150" text-anchor="middle" font-size="11.5" fill="#4A4D50">~33% of ranking signal</text>
+
+        <rect x="270" y="110" width="220" height="52" rx="4" fill="#FFFFFF" stroke="#0057B8" stroke-width="1.5"/>
+        <text x="380" y="132" text-anchor="middle" font-size="12.5" font-family="SFMono-Regular,Consolas,monospace" fill="#0A0A0A">/us/features/invoicing</text>
+        <text x="380" y="150" text-anchor="middle" font-size="11.5" fill="#4A4D50">~50% of ranking signal</text>
+
+        <rect x="450" y="110" width="240" height="52" rx="4" fill="#FFFFFF" stroke="#0057B8" stroke-width="1.5"/>
+        <text x="570" y="132" text-anchor="middle" font-size="11.5" font-family="SFMono-Regular,Consolas,monospace" fill="#0A0A0A">...invoicing?__hstc=...</text>
+        <text x="570" y="150" text-anchor="middle" font-size="11.5" fill="#4A4D50">~17% of ranking signal</text>
+
+        <text x="380" y="200" text-anchor="middle" font-size="12.5" fill="#C0392B" font-weight="600">Three separate URLs competing for one query — none accumulates the full authority a single page would.</text>
+      </svg>
+    </div>
+
+    <h3><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>Root vs. /us/ duplication in the data</h3>
+    <p>Nearly every page on the site exists twice — once at its normal path and once again under a <span class="mono">/us/</span> prefix — and Google is indexing and ranking both independently rather than treating one as canonical:</p>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Content</th><th>Root URL</th><th>/us/ URL</th></tr></thead>
+      <tbody>
+        <tr><td>Invoicing feature</td><td>8 clicks / pos. 9.46</td><td>36 clicks / pos. 8.98</td></tr>
+        <tr><td>Pricing</td><td>10 clicks / pos. 2.91</td><td>32 clicks / pos. 3.45</td></tr>
+        <tr><td>Getting Started</td><td>30 clicks / pos. 6.99</td><td>6 clicks / pos. 12.41</td></tr>
+        <tr><td>FAQ</td><td>40 clicks / pos. 5.41</td><td>9 clicks / pos. 6.71</td></tr>
+        <tr><td>Video Tutorials</td><td>27 clicks / pos. 7.91</td><td>4 clicks / pos. 5.95</td></tr>
+        <tr><td>Troubleshooting</td><td>12 clicks / pos. 3.43</td><td>3 clicks / pos. 12.55</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>There's also a third variant in the mix: <span class="mono">/oldpricing</span> is still indexed and drawing impressions alongside <span class="mono">/pricing</span> and <span class="mono">/us/pricing</span> — three live URLs for one page's worth of content.</p>
+
+    <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Other index bloat found in the export</h3>
+    <ul class="plain">
+      <li><strong>HubSpot tracking-parameter URLs indexed separately</strong> — 31 URLs carrying <span class="mono">?__hstc=…&amp;__hssc=…&amp;__hsfp=…</span> query strings are showing up as distinct pages rather than being canonicalized back to the clean URL.</li>
+      <li><strong>Case-sensitivity duplicates</strong> — <span class="mono">/US/CONTACT</span> and a matching path are indexed separately from their lowercase equivalents.</li>
+      <li><strong>Orphaned legacy Tilda pages</strong> — five auto-generated slugs (<span class="mono">/page90840006.html</span> and similar) are still indexed with no apparent navigation path pointing to them.</li>
+      <li><strong>Test/staging pages left live</strong> — <span class="mono">/test3</span>, <span class="mono">/testhorseowner</span>, <span class="mono">/old</span>, and an expired <span class="mono">/us/sweepstakes</span> promotion are all still indexed and receiving impressions.</li>
+    </ul>
+
+    <h3><svg class="icon" viewBox="0 0 24 24"><path d="M4 19h16M4 15h10M4 11h16M4 7h10"/></svg>Structured data &amp; rich results</h3>
+    <p>The Search Console "Search appearance" report shows exactly one non-standard appearance type across the full 12 months: automatic <em>translated results</em> (1 click / 50 impressions). There is no FAQPage, Organization, Article, or Breadcrumb rich result showing anywhere in the data — consistent with the live page fetches, which surfaced no visible structured-data markup. This means the site isn't eligible for the FAQ snippets, sitelinks, or enhanced listings that would meaningfully lift CTR on pages like the FAQ and feature pages.</p>
+
+    <div class="callout pine">
+      <h4>Checked directly, but couldn't be fully verified in this session</h4>
+      <p>robots.txt and sitemap.xml could not be fetched directly in this audit. Given the URL bloat found above, confirm with your developer or in Search Console → Settings → Sitemaps that: (1) a sitemap exists and lists only canonical URLs, (2) canonical tags are present and correct on the <span class="mono">/us/</span> and parameterized variants, and (3) Core Web Vitals are passing in PageSpeed Insights — this session couldn't measure real-user performance data.</p>
+    </div>
+
+    <h3><svg class="icon" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Full technical checklist</h3>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Check</th><th>Status</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>HTTPS site-wide</td><td><span class="tag pass"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Pass</span></td><td>All fetched pages served over HTTPS with no mixed-content indicators.</td></tr>
+        <tr><td>Canonical / duplicate handling</td><td><span class="tag crit"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>Fail</span></td><td>~46% of indexed URLs are duplicate, parameterized, or stale (see above).</td></tr>
+        <tr><td>Structured data (FAQ/Org/Article)</td><td><span class="tag high"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>Fail</span></td><td>Zero rich-result appearances in Search Console; none observed in fetched HTML.</td></tr>
+        <tr><td>Sitemap / robots.txt</td><td><span class="tag med"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>Unverified</span></td><td>Not directly reachable in this session — confirm manually (see above).</td></tr>
+        <tr><td>Mobile rendering</td><td><span class="tag pass"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Pass</span></td><td>Responsive layout confirmed via meta viewport tag and mobile out-performing desktop on CTR/position.</td></tr>
+        <tr><td>URL readability</td><td><span class="tag pass"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Pass</span></td><td>Clean, descriptive slugs on canonical pages (e.g. <span class="mono">/features/horseprofile</span>).</td></tr>
+        <tr><td>Internal linking</td><td><span class="tag pass"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Pass</span></td><td>Strong cross-linking between feature pages via "What to Explore Next" modules.</td></tr>
+        <tr><td>Core Web Vitals</td><td><span class="tag med"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>Unverified</span></td><td>No lab or field data available in this session; recommend a PageSpeed Insights check.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- 6. AEO/GEO -->
+  <section id="aeo">
+    <div class="sec-head">
+      <span class="ic"><svg class="icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-9 8.4A8.5 8.5 0 013 12a8.5 8.5 0 0114.5-6"/><path d="M9 10h.01M13 10h.01M17 10h.01"/></svg></span>
+      <h2>6. Answer &amp; Generative Engine Optimization</h2>
+    </div>
+    <p class="kicker">How ready this content is to be lifted into a featured snippet, an AI Overview, or a direct citation from ChatGPT, Perplexity, or Gemini.</p>
+
+    <div class="grid-2">
+      <div class="callout">
+        <h4>What's working</h4>
+        <p>Testimonials name real farriers with real credentials — Tim Shannon, CJF, AWCF; Loren Altman, CF; Eva Clark, APF‑III — exactly the kind of quotable, credentialed, first-hand-experience signal generative engines weight when deciding what to trust. It's currently confined to the homepage and success-story pages rather than woven into the blog and feature content where it would do more AEO/GEO work.</p>
+      </div>
+      <div class="callout pine">
+        <h4>What's missing</h4>
+        <p>No FAQ schema, no question-phrased headings, and no "answer-first" paragraphs on the feature pages — each one opens with a benefit statement, not a direct answer to a real query like "how do I schedule farrier appointments by shoeing cycle?" No visible author or dateModified on blog content weakens both freshness signals and citability.</p>
+      </div>
+    </div>
+
+    <h3><svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Recommended pattern</h3>
+    <p>For each feature page, open the detail section with a direct 2–3 sentence answer before the current marketing copy, and add 3–4 genuine FAQ entries with FAQPage schema. Example for the Appointments feature:</p>
+    <div class="callout">
+      <p style="margin:0;"><strong>Q: How does EQUINET schedule farrier appointments?</strong><br>EQUINET schedules appointments around each horse's shoeing cycle and sends automated SMS and email invites with built-in RSVP tracking, so farriers always have a live view of who's confirmed for the week.</p>
+    </div>
+    <p>This single change — repeated across the eight feature pages and the FAQ page — is the most direct route to both classic featured snippets and AI Overview citations, and it costs no new content strategy, only restructuring of what the team already knows.</p>
+  </section>
+
+  <!-- 7. COMPETITORS -->
+  <section id="competitors">
+    <div class="sec-head">
+      <span class="ic"><svg class="icon" viewBox="0 0 24 24"><circle cx="8" cy="9" r="3.2"/><circle cx="16" cy="9" r="3.2"/><path d="M2.5 19c.7-3 3-4.6 5.5-4.6s4.8 1.6 5.5 4.6M10.5 19c.7-3 3-4.6 5.5-4.6s4.8 1.6 5.5 4.6"/></svg></span>
+      <h2>7. Competitive Landscape &amp; Content Gaps</h2>
+    </div>
+    <p class="kicker">EQUINET already shows up organically for at least one competitor's brand name — that's a signal worth acting on, not just noting.</p>
+
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Competitor</th><th>Positioning</th><th>Content gap vs. EQUINET</th></tr></thead>
+      <tbody>
+        <tr><td>iForgeAhead</td><td>Long-running farrier business management software (est. 1998), desktop + mobile</td><td>EQUINET already earns 242 impressions/year on this brand name at position 6.93 with zero clicks — a direct comparison page would capture switchers actively comparing.</td></tr>
+        <tr><td>FarrierPlanner</td><td>Scheduling-and-records app, listed on Capterra with an FAQ-rich listing</td><td>Their Capterra listing runs its own FAQPage schema; EQUINET has no equivalent structured FAQ anywhere.</td></tr>
+        <tr><td>Forelock</td><td>Newer entrant, positions itself on "care documentation" and team coordination</td><td>Leans hard into treatment-tracking language EQUINET's Horse Entries feature already covers but doesn't market with that phrasing.</td></tr>
+        <tr><td>FarrierIQ / Best Farrier App / The Farriers App</td><td>Smaller, invoicing-and-scheduling-focused tools</td><td>None appear to publish a real content/blog program — an easier content gap for EQUINET to own outright with consistent publishing.</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3><svg class="icon" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-4"/><path d="M12 15l9-9M15 3h6v6"/></svg>Content gaps to close</h3>
+    <ul class="plain">
+      <li><strong>Comparison content</strong> — no "EQUINET vs. [competitor]" pages exist despite proven search demand for at least one competitor name.</li>
+      <li><strong>A true pillar page</strong> — nothing currently targets "farrier business software" or "farrier management software" as its primary subject; the closest page (/features) is a feature list, not a comprehensive guide.</li>
+      <li><strong>Numbers-driven case studies</strong> — the homepage testimonial ("reduced 2–3 hours of paperwork") is exactly the kind of concrete, citable stat that should be repeated and expanded across more success stories, which currently lean on qualitative quotes only.</li>
+    </ul>
+  </section>
+
+  <!-- 8. INTERNATIONAL -->
+  <section id="intl">
+    <div class="sec-head">
+      <span class="ic"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 6 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-6-3.8-9s1.3-6.3 3.8-9z"/></svg></span>
+      <h2>8. International Demand &amp; Brand Notes</h2>
+    </div>
+    <p class="kicker">EQUINET is only available in Australia, New Zealand, and the United States — but a meaningful share of search demand is coming from markets it doesn't yet serve.</p>
+
+    <div class="chart-box">
+      <canvas id="intlChart" height="200" role="img" aria-label="Bar chart comparing impressions to click-through rate for the United States, Australia, Canada, United Kingdom, and New Zealand, showing Canada and the UK have high impressions but very low click-through rates"></canvas>
+      <p class="cap">Impressions (grey, left axis) vs. CTR (rust dots, right axis) by country. Canada and the UK stand out: high visibility, weak conversion — consistent with a market EQUINET doesn't yet serve.</p>
+    </div>
+
+    <div class="callout">
+      <h4>Canada: 15,835 impressions, 0.34% CTR</h4>
+      <p>Canada is the site's second-largest source of impressions after the US — larger than Australia — yet converts at a tenth of the US click-through rate. This is either a real expansion signal worth validating with the product team, or, at minimum, a reason to make availability clearer in the meta description so unqualified clicks (and the CTR drag that comes with them) drop.</p>
+    </div>
+
+    <p style="font-size:13.5px; color:var(--ink-soft);"><strong>One brand-monitoring note:</strong> the query export includes a small number of impressions pairing a testimonial farrier's name with unrelated adult-content search terms — almost certainly an unrelated third party sharing that name rather than anything on the EQUINET site itself. Not actionable from an SEO standpoint, but worth a quick periodic glance in Search Console's query list if the team uses full names in future testimonials.</p>
+  </section>
+
+  <!-- 9. ACTION PLAN -->
+  <section id="plan">
+    <div class="sec-head">
+      <span class="ic"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 3v3h6V3M8 12l2.5 2.5L16 9"/></svg></span>
+      <h2>9. Prioritized Action Plan</h2>
+    </div>
+    <p class="kicker">Grouped by how soon each item should happen, not by how the audit found them.</p>
+
+    <div class="grid-3">
+      <div class="plan-col">
+        <h3 style="margin-top:0;">Fix Now</h3>
+        <div class="plan-item"><div class="t">Canonicalize /us/ duplicate paths</div><div class="meta">Impact: High · Effort: Moderate (dev + redirect map)</div></div>
+        <div class="plan-item"><div class="t">Strip HubSpot tracking params from indexable URLs</div><div class="meta">Impact: High · Effort: Quick win (canonical tag fix)</div></div>
+        <div class="plan-item"><div class="t">301-redirect or noindex legacy/test pages</div><div class="meta">Impact: Medium · Effort: Quick win</div></div>
+        <div class="plan-item"><div class="t">Fix case-sensitivity duplicate URLs</div><div class="meta">Impact: Low · Effort: Quick win</div></div>
+      </div>
+      <div class="plan-col high">
+        <h3 style="margin-top:0;">High Impact</h3>
+        <div class="plan-item"><div class="t">Build the "farrier software" pillar page</div><div class="meta">Impact: High · Effort: Substantial (new content)</div></div>
+        <div class="plan-item"><div class="t">Rewrite titles/meta on /features and /features/horseentries</div><div class="meta">Impact: High · Effort: Quick win</div></div>
+        <div class="plan-item"><div class="t">Add FAQPage + Organization + Article schema</div><div class="meta">Impact: High · Effort: Moderate (dev time)</div></div>
+        <div class="plan-item"><div class="t">Add dates + author byline to all blog posts</div><div class="meta">Impact: Medium · Effort: Quick win</div></div>
+      </div>
+      <div class="plan-col strategic">
+        <h3 style="margin-top:0;">Compounding / Strategic</h3>
+        <div class="plan-item"><div class="t">"EQUINET vs. iForgeAhead" comparison page</div><div class="meta">Impact: Medium · Effort: Moderate</div></div>
+        <div class="plan-item"><div class="t">Answer-first restructure of all 8 feature pages</div><div class="meta">Impact: Medium · Effort: Substantial</div></div>
+        <div class="plan-item"><div class="t">Validate Canada/UK demand with product team</div><div class="meta">Impact: Strategic · Effort: Discussion, not build</div></div>
+        <div class="plan-item"><div class="t">Quarterly content-freshness pass on blog + stats</div><div class="meta">Impact: Medium · Effort: Ongoing, low per cycle</div></div>
+      </div>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<footer>
+  <p style="margin-bottom:14px;">Report created by <strong>Mohammad Reza</strong>.</p>
+  <p><strong>Methodology &amp; limits:</strong> On-page and technical findings are based on a live fetch of the homepage, the Features hub, the Horse Profiles feature page, and the blog index on September 18, 2026, plus the site's public app-store listings and competitor pages found via web search. Search performance figures are pulled directly from the client's Google Search Console "Performance on Search" export covering September 16, 2025 – September 15, 2026. robots.txt, sitemap.xml, and Core Web Vitals lab/field data were not directly accessible in this session and are flagged above rather than assumed. No ranking positions, traffic figures, or click data in this report were estimated or fabricated.</p>
+</footer>
+
+<script>
+  // ---- reading progress bar ----
+  const progressBar = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+    progressBar.style.width = scrolled + '%';
+  });
+
+  // ---- scroll-spy nav highlight ----
+  const navLinks = Array.from(document.querySelectorAll('nav li a[data-nav]'));
+  const sections = navLinks.map(a => document.querySelector(a.getAttribute('href')));
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = '#' + entry.target.id;
+      const link = navLinks.find(a => a.getAttribute('href') === id);
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+  sections.forEach(s => s && spy.observe(s));
+
+  // ---- shared palette ----
+  const C = {rust:'#0057B8', paper:'#D6DEE6', pine:'#013A70', high:'#C97A00', crit:'#C0392B', ink:'#0A0A0A', soft:'#4A4D50'};
+  Chart.defaults.font.family = "'Inter', sans-serif";
+  Chart.defaults.color = C.soft;
+
+  // ---- trend chart ----
+  const months = ['Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26','Jul 26','Aug 26','Sep 26*'];
+  const clicks = [57,153,146,110,166,215,237,180,186,178,178,181,139];
+  const impressions = [1586,3074,4744,6228,8220,7306,8052,5637,6407,6789,5757,5746,3506];
+  const position = [7.35,6.47,6.25,6.74,7.71,7.21,6.27,7.23,8.61,9.25,8.6,10.79,7.89];
+
+  new Chart(document.getElementById('trendChart'), {
+    data: {
+      labels: months,
+      datasets: [
+        { type:'bar', label:'Impressions', data:impressions, backgroundColor:C.paper, yAxisID:'y', order:3 },
+        { type:'bar', label:'Clicks', data:clicks, backgroundColor:C.rust, yAxisID:'y2', order:2 },
+        { type:'line', label:'Avg. position (weighted)', data:position, borderColor:C.pine, backgroundColor:C.pine, borderWidth:2.5, pointRadius:3, tension:0.25, yAxisID:'y3', order:1 }
+      ]
+    },
+    options: {
+      responsive:true,
+      interaction:{mode:'index', intersect:false},
+      plugins:{ legend:{position:'bottom'} },
+      scales:{
+        y:{ position:'left', title:{display:true,text:'Impressions'}, grid:{color:'#E8F1FA'} },
+        y2:{ position:'left', display:false, max: Math.max(...clicks) * 4 },
+        y3:{ position:'right', reverse:true, title:{display:true,text:'Avg. position (lower = better)'}, grid:{display:false}, min:1 }
+      }
+    }
+  });
+
+  // ---- CTR gap chart ----
+  new Chart(document.getElementById('ctrGapChart'), {
+    type:'bar',
+    data:{
+      labels:['horseentries','features hub','video tutorials','gettingstarted','contact'],
+      datasets:[
+        { label:'Impressions ÷ 100', data:[18.4,38.8,78.2,51.1,33.3], backgroundColor:C.paper },
+        { label:'Clicks', data:[1,13,27,30,17], backgroundColor:C.rust }
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{ legend:{position:'bottom'} },
+      scales:{ y:{ beginAtZero:true, grid:{color:'#E8F1FA'} }, x:{ grid:{display:false} } }
+    }
+  });
+
+  // ---- URL breakdown donut ----
+  new Chart(document.getElementById('urlDonut'), {
+    type:'doughnut',
+    data:{
+      labels:['Canonical pages (108)','/us/ duplicate paths (67)','Tracking-parameter URLs (31)','Legacy / test pages (14)'],
+      datasets:[{ data:[108,67,31,14], backgroundColor:[C.pine, C.paper, C.high, C.crit], borderColor:'#fff', borderWidth:2 }]
+    },
+    options:{
+      responsive:true,
+      cutout:'62%',
+      plugins:{ legend:{position:'bottom', labels:{boxWidth:12, padding:14, font:{size:11.5}}} }
+    }
+  });
+
+  // ---- international demand chart ----
+  new Chart(document.getElementById('intlChart'), {
+    data:{
+      labels:['United States','Australia','Canada','United Kingdom','New Zealand'],
+      datasets:[
+        { type:'bar', label:'Impressions', data:[23331,4655,15835,4032,649], backgroundColor:C.paper, yAxisID:'y' },
+        { type:'line', label:'CTR', data:[4.47,6.42,0.34,2.13,8.63], borderColor:C.rust, backgroundColor:C.rust, pointRadius:4, borderWidth:2, yAxisID:'y2' }
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{ legend:{position:'bottom'} },
+      scales:{
+        y:{ position:'left', title:{display:true,text:'Impressions'}, grid:{color:'#E8F1FA'} },
+        y2:{ position:'right', title:{display:true,text:'CTR (%)'}, grid:{display:false}, min:0 }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
